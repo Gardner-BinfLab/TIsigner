@@ -74,7 +74,7 @@ TIsigner is written using object oriented programming principles and allows easy
 
 You can now instantiate Optimiser class with appropriate parameters:
 
-```my_opt = functions.Optimiser(seq, host, ncodons, utr, niter, threshold, plfold_args, rms_sites)```
+```my_opt = functions.Optimiser(seq, host='ecoli', ncodons=None, utr=None, niter=None, threshold=None, plfold_args=None, rms_sites=None)```
 
 Most arguments are optional and can be skipped. The skipped parameters will default to parameters for experiments with *E. coli* and T7lac promoter. The optimised sequence can be found by running simulated annealing:
 
