@@ -32,17 +32,17 @@ PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
 
 class Optimiser:
-    '''Optimises the given sequence by minimizing accessibility
+    '''Optimises the given sequence by minimizing opening energy.
 
     Args:
         seq = Your sequence.
-        ncodons = Number of codons to substitute at 5' end. Default (5)
+        ncodons = Number of codons to substitute at 5' end. Default (9)
         utr = UTR of your choice. Default = pET21
-        niter = Number of iterations for simulated annealing. Default 1000
+        niter = Number of iterations for simulated annealing. Default 25
         threshold = The value of accessibility you're aiming for. If we get
                      this value, simulated annealing will stop. Else, we
                      will run to specified iterations and give the sequence
-                     with minimum possible accessibility.
+                     with minimum possible opening energy.
 
     '''
 
@@ -183,7 +183,7 @@ class Optimiser:
         '''
         seq = self.seq
         if self.ncodons is None:
-            ncodons = 5
+            ncodons = 9
         else:
             ncodons = self.ncodons
         if self.niter is None:
