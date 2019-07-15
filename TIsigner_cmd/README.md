@@ -5,6 +5,7 @@ Once you've installed the dependencies, you can enter the following command:
 This will print a help of all possible commands. 
 
 An example use:
+
 ```python3 tisigner.py -s ATGAAGAAATCTCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCT```
 ```TCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG```
 
