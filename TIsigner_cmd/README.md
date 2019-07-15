@@ -90,7 +90,7 @@ This will return a tuple of optimised sequence, its opening energy, posterior pr
  0.5641493557136965)
  ```
 
-A random state can also be passed to ```simulated_anneal()``` using ```np.random.RandomState(12345)``` where the random number is 12345. This will return the optimised sequence and input sequence with their respective scores and opening energy. If you want the optimised sequence only, you can get it as (make sure you run ```simulated_anneal()``` once):
+A random state such as ```np.random.RandomState(12345)```, where the random number is 12345, can also be passed to ```simulated_anneal()```. This will return the optimised sequence and input sequence with their respective scores and opening energy. If you want the optimised sequence only, you can get it as (make sure you run ```simulated_anneal()``` once):
 
 ```
 my_opt.annealed_seq
