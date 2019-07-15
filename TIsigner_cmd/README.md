@@ -76,10 +76,13 @@ You can now instantiate Optimiser class with appropriate parameters:
 
 ```my_opt = functions.Optimiser(seq, host, ncodons, utr, niter, threshold, plfold_args, rms_sites)```
 
-Most arguments are optional and can be skipped. The optimised sequence can be found by:
+Most arguments are optional and can be skipped. The skipped parameters will default to parameters for experiments with *E. coli* and T7lac promoter. The optimised sequence can be found by:
 
-```opt_seq = my_opt.simulated_anneal(rand_state=None)```
+```opt_seq = my_opt.simulated_anneal()```
 
 A random state can also be passed by using ```np.random.RandomState(12345)``` where the random number is 12345. This will return the optimised sequence and input sequence with their respective scores and opening energy. If you want the optimised sequence only, you can get it by 
 
-```my_opt.annealed_seq```
+```my_opt.annealed_seq
+('ATGAAAAAAAGCCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG',
+ 11.66788)
+```
