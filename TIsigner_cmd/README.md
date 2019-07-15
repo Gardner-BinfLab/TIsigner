@@ -31,7 +31,7 @@ TIsigner is written using object oriented programming principles and allows easy
 
 You can now instantiate Optimiser class with appropriate parameters:
 
-```my_opt = functions.Optimiser(seq=str(s), host=t, ncodons=c, utr=u, niter=n, threshold=threshold, plfold_args=plfold_args, rms_sites=f)```
+```my_opt = functions.Optimiser(seq, host, ncodons, utr, niter, threshold, plfold_args, rms_sites)```
 
 Most arguments are optional and can be skipped. The optimised sequence can be found by:
 
