@@ -4,6 +4,7 @@ This repository contains source for TIsigner command line version and web versio
 
 ##### Dependencies
 You need to have python 3.6+ installed. The required python dependencies can be installed by
+
 ```pip3  install --user -r requirements.txt ```
 
 We also require ViennaRNA suite to be installed on your machine. The instructions to do so can be found [here](https://www.tbi.univie.ac.at/RNA/documentation.html#install).
