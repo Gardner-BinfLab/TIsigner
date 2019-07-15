@@ -76,13 +76,24 @@ You can now instantiate Optimiser class with appropriate parameters:
 
 ```my_opt = functions.Optimiser(seq, host, ncodons, utr, niter, threshold, plfold_args, rms_sites)```
 
-Most arguments are optional and can be skipped. The skipped parameters will default to parameters for experiments with *E. coli* and T7lac promoter. The optimised sequence can be found by:
+Most arguments are optional and can be skipped. The skipped parameters will default to parameters for experiments with *E. coli* and T7lac promoter. The optimised sequence can be found by running simulated annealing:
 
 ```opt_seq = my_opt.simulated_anneal()```
 
-A random state can also be passed by using ```np.random.RandomState(12345)``` where the random number is 12345. This will return the optimised sequence and input sequence with their respective scores and opening energy. If you want the optimised sequence only, you can get it by 
+This will return a tuple of optimised sequence, its opening energy, posterior probability of being expressed and input sequence, its opening energy and posterior probability of being expressed. Posterior probability lies between 0.49 and 0.70. 
+```
+('ATGAAAAAAAGCCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG',
+ 11.66788,
+ 0.6223835762258048,
+ 'ATGAAGAAATCTCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG',
+ 14.01474,
+ 0.5641493557136965)
+ ```
 
-```my_opt.annealed_seq
+A random state can also be passed to ```simulated_anneal()``` using ```np.random.RandomState(12345)``` where the random number is 12345. This will return the optimised sequence and input sequence with their respective scores and opening energy. If you want the optimised sequence only, you can get it as (make sure you run ```simulated_anneal()``` once):
+
+```
+my_opt.annealed_seq
 ('ATGAAAAAAAGCCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG',
  11.66788)
 ```
