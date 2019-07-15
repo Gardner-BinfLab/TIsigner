@@ -53,10 +53,14 @@ class Optimiser:
         self.host = host
         self.ncodons = ncodons
         self.utr = utr
+        if self.utr is None:
+            self.utr = data.pET21_UTR
         self.niter = niter
         self.threshold = threshold
         self.annealed_seq = None #result of simulated annealing
         self.plfold_args = plfold_args
+        if self.plfold_args is None:
+            self.plfold_args = data.RNAPLFOLD_ECOLI
         self.rms_sites = rms_sites
         self.cnst = data.CNST #to prevent overflows
         self.direction = 'decrease'
@@ -142,11 +146,7 @@ class Optimiser:
         except KeyError:
             nt_pos, subseg_length = data.ACCS_POS['ecoli']
 
-        
-        if self.utr is None:
-            utr = data.pET21_UTR
-        else:
-            utr = self.utr.upper()
+        utr = self.utr.upper()
 
         if new_seq is None:
             seq = self.seq
@@ -173,7 +173,7 @@ class Optimiser:
         return open_en
 
 
-    def simulated_anneal(self, rand_state):
+    def simulated_anneal(self, rand_state=None):
         '''
         preforms a simulated annealing
         Returns:
@@ -233,6 +233,7 @@ class Optimiser:
         else:
             return annealed_seq, Optimiser.accessibility(self, sbest), \
                     seq, Optimiser.accessibility(self, seq)
+
 
 
 

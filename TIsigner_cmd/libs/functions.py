@@ -53,10 +53,14 @@ class Optimiser:
         self.host = host
         self.ncodons = ncodons
         self.utr = utr
+        if self.utr is None:
+            self.utr = data.pET21_UTR
         self.niter = niter
         self.threshold = threshold
         self.annealed_seq = None #result of simulated annealing
         self.plfold_args = plfold_args
+        if self.plfold_args is None:
+            self.plfold_args = data.RNAPLFOLD_ECOLI
         self.rms_sites = rms_sites
         self.cnst = data.CNST #to prevent overflows
         self.direction = 'decrease'
@@ -142,11 +146,7 @@ class Optimiser:
         except KeyError:
             nt_pos, subseg_length = data.ACCS_POS['ecoli']
 
-        
-        if self.utr is None:
-            utr = data.pET21_UTR
-        else:
-            utr = self.utr.upper()
+        utr = self.utr.upper()
 
         if new_seq is None:
             seq = self.seq
@@ -173,7 +173,7 @@ class Optimiser:
         return open_en
 
 
-    def simulated_anneal(self, rand_state):
+    def simulated_anneal(self, rand_state=None):
         '''
         preforms a simulated annealing
         Returns:
@@ -295,27 +295,22 @@ def scaled_prob(post_prob):
 
 
 
-def min_dist_from_start(refseq, tstseq, max_len=50):
+def min_dist_from_start(refseq, tstseq):
     '''max_len in codons (useful for primer selection only)
     max_len is used to generate scores which again are useful for primer only.
     returns hamming distance and distance from start nt
     '''
     assert len(refseq) == len(tstseq)
-    hamming_dist = sum(nt1 != nt2 for nt1, nt2 in zip(refseq, tstseq)) #nucleotide
-    elem1 = [refseq[i:i+1] for i in range(0, len(refseq))] #by nucleotide
-    elem2 = [tstseq[i:i+1] for i in range(0, len(tstseq))] #by nucleotide
-#    score = []
+    hamming_dist = sum(nt1 != nt2 for nt1, nt2 in zip(refseq, tstseq))
+    elem1 = [refseq[i:i+1] for i in range(0, len(refseq))]
+    elem2 = [tstseq[i:i+1] for i in range(0, len(tstseq))]
     high_seq = '' #sequence with highlighted difference
     for i, v in enumerate(elem1):
         if elem2[i] == v:
-#            if i <=50:
-#                score.append('0')
             high_seq+=elem2[i]
         else:
-#            if i <=50:
-#                score.append('1')
             high_seq+=elem2[i].lower()
-    return hamming_dist, high_seq #''.join(score), high_seq
+    return hamming_dist, high_seq
 
 
 def reverse_complement(seq):
