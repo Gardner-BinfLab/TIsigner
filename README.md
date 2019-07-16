@@ -11,4 +11,6 @@ We also require ViennaRNA suite to be installed on your machine. The instruction
 ##### Optional
 TIsigner can also check for terminators if you have Infernal installed on your machine. Instructions to install Infernal can be found [here](http://eddylab.org/infernal/).
 
+```requirements.txt``` and further intructions for setting up command line and web version are in respective directory. 
+
 © [Bikash Kumar Bhandari](https://bkb3.github.io), [Chun Shem Lim](https://github.com/lcscs12345), [Paul P Gardner](https://github.com/ppgardne) (2019)
