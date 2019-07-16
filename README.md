@@ -1,5 +1,5 @@
 # TIsigner (Translation Initiation coding region designer)
-This repository contains source for TIsigner command line version and web version.
+This repository contains source for TIsigner command line version (TIsigner_cmd) and web (TIsigner_web) version.
 
 
 ##### Dependencies
