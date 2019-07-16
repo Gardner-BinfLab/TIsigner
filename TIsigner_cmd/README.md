@@ -1,5 +1,5 @@
 
-# TIsigner commandline version
+# TIsigner command line version
 Once you've installed the dependencies, you can enter the following command:
 
 ```python3 tisigner.py -h```
