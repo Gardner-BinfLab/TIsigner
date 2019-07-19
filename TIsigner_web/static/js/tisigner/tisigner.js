@@ -159,7 +159,7 @@ $(document).on("click", '#demo',
     function() {
         $('.floating-label .custom-select, .floating-label .form-control').floatinglabel();
         //console.log('demo clicked');
-        $('#input-sequence').val("ATGAAGAAATCTCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
+        $('#input-sequence').val("ATGAAGAAGAGTTTGTCGACGTCGGCGCGACTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
         $('#utr').val('1');
         $("#lvl-selection-slider").collapse("show");
         $('#lvl-tune-val-txt').val("100");
