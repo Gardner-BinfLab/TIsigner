@@ -30,14 +30,14 @@ csrf.init_app(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 
 @app.route('/')
-def my_form():
+def homepage():
     '''render homepage'''
     return render_template("index.html")
 
 
 
 @app.route('/optimise', methods=["POST"])
-def get_results():
+def optimiser():
     '''Optimisation
     '''
     try:
