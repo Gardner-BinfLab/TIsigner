@@ -6,6 +6,8 @@ Created on Tue May  7 20:55:11 2019
 @author: bikash
 """
 
+import os
+
 #DEFAULT SETTINGS AND CONSTANTS
 STOP_CODONS = ['TAG', 'TAA', 'TGA']
 
@@ -68,7 +70,7 @@ HOST_INPUT = {'Pichia pastoris':['yeast', RNAPLFOLD_YEAST],
 #algorithm settings = [number of iterations, number of sequences to gen]
 ALGORITHM_SETTINGS = {'deep':[100, 10], 'quick':[50, 5]}
 
-
+DASHBOARD = os.path.join(os.path.dirname(__file__),'dashboard.config')
 
 
 #INFO AND MANUAL

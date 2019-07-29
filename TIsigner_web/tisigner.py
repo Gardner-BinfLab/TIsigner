@@ -15,6 +15,7 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import make_response
+import flask_monitoringdashboard as dashboard
 import numpy as np
 import functions
 from functions import Optimiser
@@ -26,7 +27,10 @@ import data
 SECRET_KEY = os.urandom(32)
 csrf = CSRFProtect()
 app = Flask(__name__)
+dashboard.config.init_from(file=data.DASHBOARD)
 csrf.init_app(app)
+dashboard.bind(app)
+csrf.exempt(dashboard.blueprint)
 app.config['SECRET_KEY'] = SECRET_KEY
 
 @app.route('/')
