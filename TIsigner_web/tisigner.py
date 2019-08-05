@@ -32,6 +32,7 @@ csrf.init_app(app)
 dashboard.bind(app)
 csrf.exempt(dashboard.blueprint)
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['WTF_CSRF_TIME_LIMIT'] = None
 
 @app.route('/')
 def homepage():
