@@ -159,7 +159,7 @@ $(document).on("click", '#demo',
     function() {
         $('.floating-label .custom-select, .floating-label .form-control').floatinglabel();
         //console.log('demo clicked');
-        $('#input-sequence').val("ATGAAGAAGAGTTTGTCGACGTCGGCGCGACTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
+        $('#input-sequence').val("ATGAAGAAATCTCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
         $('#utr').val('1');
         $("#lvl-selection-slider").collapse("show");
         $('#lvl-tune-val-txt').val("100");
@@ -168,6 +168,7 @@ $(document).on("click", '#demo',
         $('#cst-utr').collapse("hide");
         $('#custom-utr').attr("required", false);
         $('#nav-input-tab').tab('show');
+        $("#seq-err").collapse("hide");
     });
 
 function maketable(elem, data) {
@@ -222,7 +223,7 @@ function validateinputs() {
 
 
     var common = cdns.filter(value => stCdns.includes(value))
-    if ((common.length !== 0 || !reg.test(inpSeq) || !reg.test(utrNucl) || startCdn !== "ATG" || cdns.length < 25) || !rmsreg.test(rms) || inpSeq.length >= 3000 || inpUtr.length >= 300 || inpSeq.length % 3 != 0) {
+    if ((common.length !== 0 || !reg.test(inpSeq) || !reg.test(utrNucl) || startCdn !== "ATG" || cdns.length < 25) || !rmsreg.test(rms) || inpSeq.length >= 3000 || inpUtr.length >= 300 || inpSeq.length % 3 != 0 || utrNucl.length < 71) {
 
         $('#seq-err-msg').empty();
         $('#seq-err-msg').append("<strong>Sequence error: </strong>");
