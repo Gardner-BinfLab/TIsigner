@@ -156,7 +156,9 @@ class Optimiser:
 
         all_args = ['RNAplfold'] + self.plfold_args.split(' ')
 
-        sequence = utr + seq
+#        sequence = utr + seq
+        sequence = utr + seq[:200] #total len = 271 which sufficient to
+        #accomodate all window sizes of 210 for our region of interest
         seq_accession, rand_string = Optimiser.accession_gen()
         input_seq = seq_accession + sequence
         run(all_args, stdout=PIPE, stderr=DEVNULL, input=input_seq, cwd=tmp, \
