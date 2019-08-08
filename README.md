@@ -1,6 +1,7 @@
 # TIsigner (Translation Initiation coding region designer)
-This repository contains source for TIsigner command line version (TIsigner_cmd) and web version (TIsigner_web).
+This repository contains source for TIsigner command line version (TIsigner_cmd) and web version ([TIsigner_web](https://tisigner.otago.ac.nz)).
 
+The repository to reproduce the results and figures of the related preprint is available [here](https://github.com/Gardner-BinfLab/TIsigner_paper_2019).
 
 ##### Dependencies
 You need to have python 3.6+ installed. The required python dependencies can be installed by
