@@ -59,7 +59,7 @@ UTR5_AOX1_promoter = 'ACCTTTTTTTTTATCATCATTATTAGCTTACTTTCATAATTGCGACTGGTTCCAATTG
 #RNAPLFOLD_YEAST
 RANDOM_SEED = 12345
 RMS_SITES = 'TTTTT|CACCTGC|GCAGGTG|GGTCTC|GAGACC|CGTCTC|GAGACG'
-ACCS_POS = {'yeast':[89, 97], 'ecoli':[24,48], 'mouse':[11,19]} #nt_pos, subseg_length
+ACCS_POS = {'yeast':[89, 96], 'ecoli':[24,48], 'mouse':[11,19]} #nt_pos, subseg_length
 
 
 
