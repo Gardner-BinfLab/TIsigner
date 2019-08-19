@@ -1,7 +1,0 @@
-Flask==1.0.2
-Flask-WTF==0.14.2
-numpy==1.16.2
-pandas==0.23.4
-WTForms==2.2.1
-flask_monitoringdashboard==2.1.4
-
