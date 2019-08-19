@@ -403,7 +403,7 @@ def sort_results(df, direction='decrease', termcheck=False):
 
     sequences_df = df[cols].copy()
     sequences_df['Type'] = 'Optimised'
-    sequences_df.to_csv('seq_df.csv', index=None)
+#    sequences_df.to_csv('seq_df.csv', index=None)
 #    sequences_df.drop_duplicates(inplace=True)
     sequences_df[cols_for_mismatches] = pd.DataFrame(sequences_df['Sequence']\
                 .apply(lambda x:min_dist_from_start(org_seq, x)).values.\
