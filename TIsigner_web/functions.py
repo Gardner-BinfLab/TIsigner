@@ -8,6 +8,7 @@ Created on Tue May  7 20:56:34 2019
 
 import os
 #import sys
+import datetime
 import secrets
 import string
 import tempfile
@@ -32,41 +33,38 @@ PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
 
 class Optimiser:
-    '''Optimises the given sequence by minimizing opening energy.
+    '''Optimises the given sequence by minimizing accessibility
 
     Args:
         seq = Your sequence.
-        ncodons = Number of codons to substitute at 5' end. Default (9)
+        ncodons = Number of codons to substitute at 5' end. Default (5)
         utr = UTR of your choice. Default = pET21
-        niter = Number of iterations for simulated annealing. Default 25
+        niter = Number of iterations for simulated annealing. Default 1000
         threshold = The value of accessibility you're aiming for. If we get
                      this value, simulated annealing will stop. Else, we
                      will run to specified iterations and give the sequence
-                     with minimum possible opening energy.
+                     with minimum possible accessibility.
 
     '''
 
 
     def __init__(self, seq, host='ecoli', ncodons=None, utr=None, niter=None,\
-                 threshold=None, plfold_args=None, rms_sites=None):
+                 threshold=None,rms_sites=None,\
+                 direction='decrease'):
         self.seq = seq
         self.host = host
         self.ncodons = ncodons
         self.utr = utr
-        if self.utr is None:
-            self.utr = data.pET21_UTR
         self.niter = niter
         self.threshold = threshold
         self.annealed_seq = None #result of simulated annealing
-        self.plfold_args = plfold_args
-        if self.plfold_args is None:
-            self.plfold_args = data.RNAPLFOLD_ECOLI
         self.rms_sites = rms_sites
         self.cnst = data.CNST #to prevent overflows
-        self.direction = 'decrease'
+        self.direction = direction
         if self.threshold is not None and \
         Optimiser.accessibility(self) <= self.threshold:
             self.direction = 'increase'
+        if self.direction == 'increase':
             self.cnst = -1
 
 
@@ -129,11 +127,9 @@ class Optimiser:
 
         return start + new_seq + seq[num_nts:]
 
-
     @lru_cache(maxsize=128, typed=True)
-    def accessibility(self, new_seq=None, inuse=False):
+    def accessibility(self, new_seq=None):
         '''Sequence accessibility
-        inuse = use in internal function. Set false otherwise.
         '''
         tmp = os.path.join(tempfile.gettempdir(), 'plfold')
         try:
@@ -144,8 +140,8 @@ class Optimiser:
         try:
             nt_pos, subseg_length = data.ACCS_POS[self.host]
         except KeyError:
-            nt_pos, subseg_length = data.ACCS_POS['ecoli']
-
+            if 'custom' in self.host:
+                nt_pos, subseg_length = get_plfold_args(self.host)
         utr = self.utr.upper()
 
         if new_seq is None:
@@ -154,10 +150,12 @@ class Optimiser:
             seq = new_seq
 
 
-        all_args = ['RNAplfold'] + self.plfold_args.split(' ')
-#        sequence = utr + seq
-        sequence = utr + seq[:210] #total len = 281 which sufficient to
-        #accomodate all window sizes of 210 for our region of interest
+#        all_args = ['RNAplfold'] + self.plfold_args.split(' ')
+        winsize = 210
+        all_args = ['RNAplfold', '-W', str(winsize), '-u', str(subseg_length), '-O']
+
+        sequence = utr[-(winsize - nt_pos + 1):] + \
+                    seq[:(winsize - (subseg_length - nt_pos) + 1)]
         seq_accession, rand_string = Optimiser.accession_gen()
         input_seq = seq_accession + sequence
         run(all_args, stdout=PIPE, stderr=DEVNULL, input=input_seq, cwd=tmp, \
@@ -172,6 +170,7 @@ class Optimiser:
         os.remove(tmp+out2)
 
         return open_en
+
 
 
     def simulated_anneal(self, rand_state=None):
@@ -198,43 +197,53 @@ class Optimiser:
                          for _ in range(niter)] #same as floor but returns int
         scurr = seq
         sbest = seq
+        initial_cost = Optimiser.accessibility(self, seq)
+        curr_cost = Optimiser.accessibility(self, scurr) #we are here
+        curr_best_cost = Optimiser.accessibility(self, sbest) # best so far
+        
         for idx, temp in enumerate(temperatures):
             snew = self.substitute_codon(sbest, ncodons, num_of_subst[idx], \
                                          rms_sites=rms_, rand_state=rand_state)
-            if (Optimiser.accessibility(self, snew))/self.cnst <= \
-            (Optimiser.accessibility(self, scurr))/self.cnst:
-                scurr = snew
-                if (Optimiser.accessibility(self, scurr))/self.cnst <= \
-                (Optimiser.accessibility(self, sbest))/self.cnst:
-                    sbest = snew
-            elif np.exp(-(((Optimiser.accessibility(self, snew)))/self.cnst- \
-                          ((Optimiser.accessibility(self, scurr)))/self.cnst)\
-                        /temp) >= np.random.rand(1)[0]:
-                scurr = snew
+            new_cost = Optimiser.accessibility(self, snew) #new move
 
+
+            #simulated annealing
+            if new_cost/self.cnst <= curr_cost/self.cnst:
+                #is new move better then our current position?
+                scurr = snew #accept
+                curr_cost = Optimiser.accessibility(self, scurr)#update cost
+                if curr_cost/self.cnst <= curr_best_cost/self.cnst:
+                    #is the accepted move better then the best move so far?
+                    sbest = snew #accept
+                    curr_best_cost = Optimiser.accessibility(self, sbest)#update cost
+            elif np.exp(-(new_cost - curr_cost)/(temp*self.cnst)) >= \
+            np.random.rand(1)[0]:
+                #if the move wasn't better, accept or reject probabilistically
+                scurr = snew
+                curr_cost = Optimiser.accessibility(self, scurr)#update cost
+
+
+
+            #early stopping if we pass the threshold
             if self.threshold != None:
                 if self.direction == 'increase' and \
-                Optimiser.accessibility(self, sbest) >= self.threshold:
+                curr_best_cost >= self.threshold:
                     break
                 elif self.direction == 'decrease' and \
-                Optimiser.accessibility(self, sbest) <= self.threshold:
+                curr_best_cost <= self.threshold:
                     break
 
 
 
-        annealed_seq = sbest
-        self.annealed_seq = (annealed_seq, \
-                             Optimiser.accessibility(self, sbest))
+        final_cost = curr_best_cost
+        self.annealed_seq = (sbest, final_cost)
+        results = [sbest, final_cost, seq, initial_cost]
+        
         if self.utr == data.pET21_UTR and self.host=='ecoli':
-            
-            return annealed_seq, Optimiser.accessibility(self, sbest), \
-                    get_prob_pos(Optimiser.accessibility(self, sbest)), seq, \
-                    Optimiser.accessibility(self, seq), \
-                    get_prob_pos(Optimiser.accessibility(self, seq, True))
-        else:
-            return annealed_seq, Optimiser.accessibility(self, sbest), \
-                    seq, Optimiser.accessibility(self, seq)
-
+            #also return posterior probs for ecoli and pET_21_UTR
+            results.insert(2, get_prob_pos(final_cost))
+            results.append(get_prob_pos(initial_cost))
+        return results
 
 
 
@@ -361,8 +370,12 @@ def sort_results(df, direction='decrease', termcheck=False):
     org_seq = df['org_sq'][0]
     cols = ['Sequence', 'Accessibility']
     cols_for_mismatches = ['Mismatches', 'Sequenceh']
-    cols_for_sort = ['Mismatches']
+    cols_for_sort = ['Mismatches', 'Accessibility']
     bool_for_sort = [True]
+    if direction == 'decrease':
+        bool_for_sort.append('True')
+    else:
+        bool_for_sort.append('False')
     ecoli = False
 
     if 'pExpressed' in df.columns: #for pET21 and ecoli
@@ -390,6 +403,8 @@ def sort_results(df, direction='decrease', termcheck=False):
 
     sequences_df = df[cols].copy()
     sequences_df['Type'] = 'Optimised'
+    sequences_df.to_csv('seq_df.csv', index=None)
+#    sequences_df.drop_duplicates(inplace=True)
     sequences_df[cols_for_mismatches] = pd.DataFrame(sequences_df['Sequence']\
                 .apply(lambda x:min_dist_from_start(org_seq, x)).values.\
                 tolist(), index=sequences_df.index)
@@ -496,6 +511,12 @@ class TerminatorCheckFailException(Exception):
     '''
     pass
 
+class CustomRangeException(Exception):
+    '''Exception for custom range
+    '''
+    pass
+
+
 
 
 def valid_input_seq(seq):
@@ -585,12 +606,47 @@ def parse_input_utr(request_form):
 def parse_hosts(request_form):
     '''parse hosts
     '''
+    if request_form['host-select'] != 'Custom':
+        try:
+            host = data.HOST_INPUT[request_form['host-select']]
+        except KeyError:
+            host = data.HOST_INPUT['Escherichia coli']
+    else:
+        host = make_plfoldargs(request_form)
+    return host
+
+
+def make_plfoldargs(request_form):
+    '''determine plfold args from custom range
+    '''
+    start, end = request_form['custom-region'].split(':')
+    nt_pos = int(end) if int(end) > int(start) else int(start)
+    subseg_len = abs(int(end) - int(start))
+    if subseg_len >= 151:
+        raise CustomRangeException("Custom region is greater then 150 " + \
+                                   "nucleotides.")
+    host = 'custom' + ':' + str(nt_pos) + ':' + str(subseg_len)
+#    plfold_args = 'W 210 -u ' + str(subseg_len) + ' O'
+    return host
     
-    try:
-        host, plfold_args = data.HOST_INPUT[request_form['host-select']]
-    except KeyError:
-        host, plfold_args = data.HOST_INPUT['Escherichia coli']
-    return host, plfold_args
+
+def get_plfold_args(host):
+    '''make plfold args for custom host
+    '''
+    if 'custom' in host:
+        try:
+            a, b, c = host.split(':')
+            nt_pos = int(b)
+            subseg_len = int(c)
+        except ValueError:
+            nt_pos = data.ACC_POS['ecoli'][0]
+            subseg_len = data.ACC_POS['ecoli'][1]
+    else:
+        nt_pos = data.ACC_POS['ecoli'][0]
+        subseg_len = data.ACC_POS['ecoli'][1]
+    return nt_pos, subseg_len
+
+
 
 def parse_algorithm_settings(request_form):
     '''algorithm settings
@@ -657,6 +713,11 @@ def check_term_org(seq):
     return hits, e_val
 
     
+def tips():
+    return np.random.choice(data.tips_list)
     
-    
+def last_modified(filepath):
+    last_modif = os.path.getmtime(filepath)
+    datim = str(datetime.datetime.fromtimestamp(last_modif))
+    return datim.split(" ")[0]
     
