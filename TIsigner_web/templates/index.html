@@ -51,6 +51,8 @@
 <script>$("#experimental-notification").on("closed.bs.alert",function(){Cookies.set("exp-notif-dismiss","1",{expires:30})});</script>
 </button>
                     </div>
+                    <div class="alert alert-primary" role="alert"><strong>Tip:</strong> {{ tips|safe }} </div>
+                    <div> <p class="text-white-hint text-md-right">TIsigner last update date: {{mod_date|safe}}</p></div>
                 </div>
             </div>
         </div>
@@ -83,6 +85,10 @@
                     <p>
                         Codon adaptation index (CAI) is the most popular feature for full-length gene optimisation. However, many evaluations have shown that CAI has a limited relationship with protein expression (0.54 AUC, in our evaluations using 11,430 <a href=http://targetdb.rcsb.org>recombinant protein expression experiments</a> in <span class=font-italic>E. coli</span>). An AUC score of 0.5 is expected for tossing a coin, suggesting that CAI has limited use in gene optimisation. In contrast, the accessibility of translation initiation sites has an AUC score of 0.7. Furthermore, optimising as few as the first nine codons is sufficient to improve the accessibility of the translation initiation region.
                     </p>
+                    <h3 class="mt-4 typography-body-2">Why is the support for <span class=font-italic>Saccharomyces cerevisiae</span> and <span class=font-italic>Mus musculus</span> experimental?</h3>
+                    <p>
+                        The result for <span class=font-italic>Saccharomyces cerevisiae</span> and <span class=font-italic>Mus musculus</span> is based on reporter expression dataset. Due to the absence of heterologous expression dataset for these organisms, we consider optimisation for these as experimental.
+                    </p>
                     <h3 class="mt-4 typography-body-2">Could I copy and distribute TIsigner for commercial purposes?</h3>
                     <p>
                         Feel free to do so under following terms and conditions:
@@ -93,7 +99,9 @@
                     </p>
                     <h3 class="mt-4 typography-body-2">How to cite TIsigner?</h3>
                     <p>
-                        Bikash Kumar Bhandari, Chun Shen Lim, Paul P Gardner. (2019) DOI:<a href=https://doi.org/10.1101/726752>https://doi.org/10.1101/726752</a>
+                        Bikash K Bhandari, Chun Shen Lim, Paul P Gardner. <cite title="Highly accessible translation initiation sites
+are predictive of successful heterologous protein expression">Highly accessible translation initiation sites
+are predictive of successful heterologous protein expression</cite>. BioRxiv. (2019). DOI:<a href=https://doi.org/10.1101/726752>10.1101/726752</a>
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -110,16 +118,9 @@
                         <div class="collapse rounded shadow-8" id=submit-inputs>
                             <div class=card>
                                 <div class="card card-body" id=input-form-card>
-                                    <div class=collapse id=infinite-prog-bar>
-                                        <div class=progress>
-                                            <div class="progress-bar progress-bar-indeterminate" role=progressbar></div>
-                                            <div class="progress-bar progress-bar-indeterminate bg-success" role=progressbar></div>
-                                            <div class="progress-bar progress-bar-indeterminate bg-info" role=progressbar></div>
-                                        </div>
-                                    </div>
-                                    <div id=snackbar-msg class="snackbar snackbar-left">
+                                    <div id=snackbar-msg class="snackbar snackbar-right collapse">
                                         <div class=snackbar-body>
-                                            Sequence submitted! Please wait for a moment...
+                                            Sequence submitted. Please wait for a moment...
                                         </div>
                                     </div>
                                     <div class=collapse id=show-results>
@@ -186,7 +187,7 @@
                                         </div>
                                     </div>
                                     <form id=input-form action=/optimise method=post class="collapse show">
-                                        <input type=hidden name=csrf_token value="{{ csrf_token() }}"/>
+                                        <input type=hidden name=csrf_token value="{{ csrf_token() }}" />
                                         <nav>
                                             <div class="nav nav-tabs" id=nav-tab role=tablist>
                                                 <a class="nav-item nav-link active" id=nav-input-tab data-toggle=tab href=#nav-input role=tab aria-controls=nav-input aria-selected=true>Input</a>
@@ -210,7 +211,6 @@
                                                         <select class=form-control id=utr name=utr required>
 <option label></option>
 <option value=1>T7lac promoter (e.g., pET21)</option>
-<option value=2>AOX1 promoter</option>
 <option value=3>Custom</option>
 </select>
                                                         <small id=utr-help class="form-text text-muted">Pick a promoter or input your custom sequence. </small>
@@ -221,6 +221,17 @@
                                                         <label for=custom-utr>Input 5&prime; UTR sequence</label>
                                                         <textarea input aria-describedby=custom-utr-help class=form-control id=custom-utr placeholder type=text name=custom-utr rows=1 spellcheck=false></textarea>
                                                         <small id=custom-utr-help class="form-text text-muted">A custom 5&prime; UTR sequence.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group collapse show" id="optimisation-type">
+                                                    <label for=customRadioInline0>Optimisation type</label>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type=radio id=optimisation-direction0 name=optimisation-direction class="custom-control-input form-check-input" checked value='decrease'>
+                                                        <label class="custom-control-label form-check-label" for=optimisation-direction0>Maximise Expression</label>
+                                                    </div>
+                                                    <div class="custom-control custom-radio custom-control-inline">
+                                                        <input type=radio id=optimisation-direction1 name=optimisation-direction class=custom-control-input value="increase">
+                                                        <label class="custom-control-label form-check-label" for=optimisation-direction1>Minimise Expression</label>
                                                     </div>
                                                 </div>
                                                 <p></p>
@@ -244,9 +255,24 @@
                                                     <label for=host-select>Host</label>
                                                     <select class=form-control id=host-select name=host-select onclick=hostSelect()>
 <option>Escherichia coli</option>
-<option>Pichia pastoris</option>
+<option>Saccharomyces cerevisiae</option>
+<option>Mus musculus</option>
+<option>Custom</option>
 </select>
-                                                    <small id=host-help class="form-text text-muted">Your input sequence will be optimised for this host.</small>
+                                                    <small id=host-help class="form-text text-muted collapse show">Your input sequence will be optimised for this host.</small>
+                                                </div>
+                                                <div class="form-group collapse" id=cst-region>
+                                                    <div class=floating-label>
+                                                        <label for=custom-region>Start and end positions </label>
+                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by : for example -24:24. Maximum length of region is 150 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
+                                                        <small id=custom-region-help class="form-text text-muted">Custom region to optimise accessibility. Use the following guide to enter start and end position of your region.</small>
+                                                        <blockquote class="blockquote text-center">
+                                                            <ul class="list-unstyled">
+                                                                <li class="text-monospace text-uppercase">... <a class="text-primary">_&nbsp; </a><a class="text-secondary">_&nbsp; </a><a class="text-danger">_&nbsp; </a><a class="text-info">A </a><a class="text-success">T </a><a class="text-warning">G </a>_ _ _ ...</li>
+                                                                <li class="text-monospace">... <a class="text-primary">-3 </a><a class="text-secondary">-2 </a><a class="text-danger">-1 </a><a class="text-info">1 </a><a class="text-success">2 </a><a class="text-warning">3 </a>4 5 6 ...</li>
+                                                            </ul>
+                                                        </blockquote>
+                                                    </div>
                                                 </div>
                                                 <div class=form-group>
                                                     <label for=customRadioInline1>Optimisation region</label>
@@ -255,8 +281,8 @@
                                                         <label class="custom-control-label form-check-label" for=primer-button>Translation initiation coding region</label>
                                                     </div>
                                                     <div class="custom-control custom-radio custom-control-inline">
-                                                        <input type=radio id=radioBtn2 name=designMode class=custom-control-input value=fullGene onclick=ntSlider()>
-                                                        <label class="custom-control-label form-check-label" for=radioBtn2>Full-length sequence</label>
+                                                        <input type=radio id=full-button name=designMode class=custom-control-input value=fullGene onclick=ntSlider()>
+                                                        <label class="custom-control-label form-check-label" for=full-button>Full-length sequence</label>
                                                     </div>
                                                 </div>
                                                 <div class="form-group collapse show" id=primer-length-selection-slider>
@@ -313,6 +339,14 @@
                                             <div class="alert alert-warning alert-dismissible fade show" role=alert id=seq-err-msg>
                                             </div>
                                         </div>
+                                        <br>
+                                        <div class=collapse id=infinite-prog-bar>
+                                            <div class=progress>
+                                                <div class="progress-bar progress-bar-indeterminate" role=progressbar></div>
+                                                <div class="progress-bar progress-bar-indeterminate bg-success" role=progressbar></div>
+                                                <div class="progress-bar progress-bar-indeterminate bg-info" role=progressbar></div>
+                                            </div>
+                                        </div>
                                         <div class=modal-footer>
                                             <button class="btn btn-primary" data-toggle=collapse href=#infinite-prog-bar1 id=submit-btn><i class="material-icons mr-2">play_arrow</i>Optimise</button>
                                         </div>
@@ -326,7 +360,7 @@
                     </div>
                     <div class=mb-4 id=index-content-one>
                         <h2 class=text-primary>Our services</h2>
-                        <p class=typography-subheading>TIsigner optimises the translation initiation coding region of a gene of interest to improve recombinant protein production in <span class=font-italic>Escherichia coli</span>. Gene optimisation for <span class=font-italic>Pichia pastoris</span> is available, but still experimental. In contrast to existing software, TIsigner suggests minimum numbers of synonymous codon changes to the input sequence. This enables a standard PCR cloning for the optimised sequence.</p>
+                        <p class=typography-subheading>TIsigner optimises the translation initiation coding region of a gene of interest to improve recombinant protein production in <span class=font-italic>Escherichia coli</span>, <span class=font-italic>Saccharomyces cerevisiae</span> and <span class=font-italic>Mus musculus</span> (see <button class="btn btn-outline-dark" type="button"  data-toggle=modal href=#quick-help-modal>Faq</button>). In contrast to existing software, TIsigner suggests minimum numbers of synonymous codon changes to the input sequence. This enables a standard PCR cloning for the optimised sequence.</p>
                         <div class=block-multiquote>
                             <div class=row>
                                 <div class="col-md-6 mt-4">
