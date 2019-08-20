@@ -13,4 +13,4 @@ After you click example and optimise that example sequence, your results page sh
 
 ![website-results-page](https://i.imgur.com/TLacMpW.png)
 
-You can then start optimising sequences.
+You can then start optimising sequences. If you see something unexpected, please report us or open an issue.
