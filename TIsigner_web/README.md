@@ -3,13 +3,13 @@ Once you've installed the dependencies, you can enter the following command:
 
 ```python3 tisigner.py```
 
-The local web server will run on ```http://0.0.0.0:5000/```. You should the following page on your browser.
+The local web server will run on ```http://0.0.0.0:5000/```. You should see the following page on your browser.
 
 ![website-homepage](https://i.imgur.com/jbb9Lqa.png)
 
 
 
-After you click example and optimise that example sequence, your results page should look like this.
+After you click example and optimise that example sequence, your results page should look similar to this.
 
 ![website-results-page](https://i.imgur.com/TLacMpW.png)
 
