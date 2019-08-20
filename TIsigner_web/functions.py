@@ -297,12 +297,12 @@ def scaled_prob(post_prob):
     '''Scales post probability from min value (prior) to 100 (equal to post 
     prob of 0.70 (max in our case).
     '''
-    scaled_prob = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
-    return scaled_prob
+    prob = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
+    return prob
 
 
 
-def min_dist_from_start(refseq, tstseq, max_len=50):
+def min_dist_from_start(refseq, tstseq):
     '''max_len in codons (useful for primer selection only)
     max_len is used to generate scores which again are useful for primer only.
     returns hamming distance and distance from start nt
@@ -635,7 +635,7 @@ def get_plfold_args(host):
     '''
     if 'custom' in host:
         try:
-            a, b, c = host.split(':')
+            _, b, c = host.split(':')
             nt_pos = int(b)
             subseg_len = int(c)
         except ValueError:
