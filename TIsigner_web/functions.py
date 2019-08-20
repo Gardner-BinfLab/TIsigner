@@ -33,7 +33,7 @@ PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
 
 class Optimiser:
-    '''Optimises the given sequence by minimizing accessibility
+    '''Optimises the given sequence by minimizing/maximising opening energy
 
     Args:
         seq = Your sequence.
@@ -43,7 +43,7 @@ class Optimiser:
         threshold = The value of accessibility you're aiming for. If we get
                      this value, simulated annealing will stop. Else, we
                      will run to specified iterations and give the sequence
-                     with minimum possible accessibility.
+                     with minimum/maximum possible opening energy.
 
     '''
 
