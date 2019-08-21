@@ -20,7 +20,8 @@ from libs import data
 from libs.terminators import AnalyseTerminators
 
 
-REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__),'lookup_table.csv')) #table for likelihood/thresh
+REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__), \
+                                 'lookup_table.csv')) #table for likelihood/thresh
 PRIOR_PROB = 0.49 #success/(success+failure) 
 PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
@@ -32,17 +33,17 @@ PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
 
 class Optimiser:
-    '''Optimises the given sequence by minimizing opening energy.
+    '''Optimises the given sequence by minimizing/maximising opening energy
 
     Args:
         seq = Your sequence.
-        ncodons = Number of codons to substitute at 5' end. Default (9)
+        ncodons = Number of codons to substitute at 5' end. Default (5)
         utr = UTR of your choice. Default = pET21
-        niter = Number of iterations for simulated annealing. Default 25
+        niter = Number of iterations for simulated annealing. Default 1000
         threshold = The value of accessibility you're aiming for. If we get
                      this value, simulated annealing will stop. Else, we
                      will run to specified iterations and give the sequence
-                     with minimum possible opening energy.
+                     with maximum/minimum possible opening energy.
 
     '''
 
@@ -120,14 +121,14 @@ class Optimiser:
                             new_seq[subst_codon_position*3+3:]
             counter += 1
             if not re.findall(rms_sites, new_seq):
-                break
+                return start + new_seq + seq[num_nts:]
             if counter == 1000:
                 raise UnableToSubstituteError('Taking too long to get new'+
                                               ' sequences without given '+
                                               'restriction modification sites'+
                                               '. Enter new rms sites.')
 
-        return start + new_seq + seq[num_nts:]
+
 
 
     @lru_cache(maxsize=128, typed=True)
@@ -199,42 +200,53 @@ class Optimiser:
                          for _ in range(niter)] #same as floor but returns int
         scurr = seq
         sbest = seq
+        initial_cost = Optimiser.accessibility(self, seq)
+        curr_cost = Optimiser.accessibility(self, scurr) #we are here
+        curr_best_cost = Optimiser.accessibility(self, sbest) # best so far
+
         for idx, temp in enumerate(temperatures):
             snew = self.substitute_codon(sbest, ncodons, num_of_subst[idx], \
                                          rms_sites=rms_, rand_state=rand_state)
-            if (Optimiser.accessibility(self, snew))/self.cnst <= \
-            (Optimiser.accessibility(self, scurr))/self.cnst:
-                scurr = snew
-                if (Optimiser.accessibility(self, scurr))/self.cnst <= \
-                (Optimiser.accessibility(self, sbest))/self.cnst:
-                    sbest = snew
-            elif np.exp(-(((Optimiser.accessibility(self, snew)))/self.cnst- \
-                          ((Optimiser.accessibility(self, scurr)))/self.cnst)\
-                        /temp) >= np.random.rand(1)[0]:
-                scurr = snew
+            new_cost = Optimiser.accessibility(self, snew) #new move
 
+
+            #simulated annealing
+            if new_cost/self.cnst <= curr_cost/self.cnst:
+                #is new move better then our current position?
+                scurr = snew #accept
+                curr_cost = Optimiser.accessibility(self, scurr)#update cost
+                if curr_cost/self.cnst <= curr_best_cost/self.cnst:
+                    #is the accepted move better then the best move so far?
+                    sbest = snew #accept
+                    curr_best_cost = Optimiser.accessibility(self, sbest)#update cost
+            elif np.exp(-(new_cost - curr_cost)/(temp*self.cnst)) >= \
+            np.random.rand(1)[0]:
+                #if the move wasn't better, accept or reject probabilistically
+                scurr = snew
+                curr_cost = Optimiser.accessibility(self, scurr)#update cost
+
+
+
+            #early stopping if we pass the threshold
             if self.threshold != None:
                 if self.direction == 'increase' and \
-                Optimiser.accessibility(self, sbest) >= self.threshold:
+                curr_best_cost >= self.threshold:
                     break
                 elif self.direction == 'decrease' and \
-                Optimiser.accessibility(self, sbest) <= self.threshold:
+                curr_best_cost <= self.threshold:
                     break
 
 
 
-        annealed_seq = sbest
-        self.annealed_seq = (annealed_seq, \
-                             Optimiser.accessibility(self, sbest))
+        final_cost = curr_best_cost
+        self.annealed_seq = (sbest, final_cost)
+        results = [sbest, final_cost, seq, initial_cost]
+
         if self.utr == data.pET21_UTR and self.host=='ecoli':
-            
-            return annealed_seq, Optimiser.accessibility(self, sbest), \
-                    get_prob_pos(Optimiser.accessibility(self, sbest)), seq, \
-                    Optimiser.accessibility(self, seq), \
-                    get_prob_pos(Optimiser.accessibility(self, seq, True))
-        else:
-            return annealed_seq, Optimiser.accessibility(self, sbest), \
-                    seq, Optimiser.accessibility(self, seq)
+            #also return posterior probs for ecoli and pET_21_UTR
+            results.insert(2, get_prob_pos(final_cost))
+            results.append(get_prob_pos(initial_cost))
+        return results
 
 
 

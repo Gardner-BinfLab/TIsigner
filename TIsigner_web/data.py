@@ -59,7 +59,8 @@ UTR5_AOX1_promoter = 'ACCTTTTTTTTTATCATCATTATTAGCTTACTTTCATAATTGCGACTGGTTCCAATTG
 #RNAPLFOLD_YEAST
 RANDOM_SEED = 12345
 RMS_SITES = 'TTTTT|CACCTGC|GCAGGTG|GGTCTC|GAGACC|CGTCTC|GAGACG'
-ACCS_POS = {'yeast':[89, 96], 'ecoli':[24,48], 'mouse':[11,19]} #nt_pos, subseg_length
+ACCS_POS = {'yeast':[89, 96], 'ecoli':[24,48], 'mouse':[11,19], \
+            'other':[50,100]} #nt_pos, subseg_length
 
 
 
@@ -67,7 +68,8 @@ ACCS_POS = {'yeast':[89, 96], 'ecoli':[24,48], 'mouse':[11,19]} #nt_pos, subseg_
 UTR_INPUT = {'1':pET21_UTR, '2':UTR5_AOX1_promoter}
 HOST_INPUT = {'Saccharomyces cerevisiae':'yeast',
               'Escherichia coli':'ecoli',
-              'Mus musculus':'mouse'}
+              'Mus musculus':'mouse',
+              'Other':'other'}
 
 #algorithm settings = [number of iterations, number of sequences to gen]
 ALGORITHM_SETTINGS = {'deep':[100, 10], 'quick':[50, 5]}

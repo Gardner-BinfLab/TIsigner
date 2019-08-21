@@ -38,7 +38,8 @@ app.config['WTF_CSRF_TIME_LIMIT'] = None
 def homepage():
     '''render homepage'''
     return render_template("index.html", tips=functions.tips(), \
-                           mod_date=functions.last_modified(os.path.realpath(__file__)))
+                           mod_date=functions.last_modified(os.path.join(os.path.dirname(__file__), \
+                                 'functions.py')))
 
 
 

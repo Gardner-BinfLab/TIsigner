@@ -21,8 +21,9 @@ import data
 from terminators import AnalyseTerminators
 
 
-REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__),'lookup_table.csv')) #table for likelihood/thresh
-PRIOR_PROB = 0.49 #success/(success+failure) 
+REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__), \
+                                 'lookup_table.csv')) #table for likelihood/thresh
+PRIOR_PROB = 0.49 #success/(success+failure)
 PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
 
 
@@ -43,7 +44,7 @@ class Optimiser:
         threshold = The value of accessibility you're aiming for. If we get
                      this value, simulated annealing will stop. Else, we
                      will run to specified iterations and give the sequence
-                     with minimum/maximum possible opening energy.
+                     with maximum/minimum possible opening energy.
 
     '''
 
@@ -69,7 +70,7 @@ class Optimiser:
 
 
 
-            
+
 
 
     @staticmethod
@@ -118,14 +119,14 @@ class Optimiser:
                             new_seq[subst_codon_position*3+3:]
             counter += 1
             if not re.findall(rms_sites, new_seq):
-                break
+                return start + new_seq + seq[num_nts:]
             if counter == 1000:
                 raise UnableToSubstituteError('Taking too long to get new'+
                                               ' sequences without given '+
                                               'restriction modification sites'+
                                               '. Enter new rms sites.')
 
-        return start + new_seq + seq[num_nts:]
+
 
     @lru_cache(maxsize=128, typed=True)
     def accessibility(self, new_seq=None):
@@ -136,7 +137,7 @@ class Optimiser:
             os.makedirs(tmp)
         except FileExistsError:
             pass
-        
+
         try:
             nt_pos, subseg_length = data.ACCS_POS[self.host]
         except KeyError:
@@ -200,7 +201,7 @@ class Optimiser:
         initial_cost = Optimiser.accessibility(self, seq)
         curr_cost = Optimiser.accessibility(self, scurr) #we are here
         curr_best_cost = Optimiser.accessibility(self, sbest) # best so far
-        
+
         for idx, temp in enumerate(temperatures):
             snew = self.substitute_codon(sbest, ncodons, num_of_subst[idx], \
                                          rms_sites=rms_, rand_state=rand_state)
@@ -238,7 +239,7 @@ class Optimiser:
         final_cost = curr_best_cost
         self.annealed_seq = (sbest, final_cost)
         results = [sbest, final_cost, seq, initial_cost]
-        
+
         if self.utr == data.pET21_UTR and self.host=='ecoli':
             #also return posterior probs for ecoli and pET_21_UTR
             results.insert(2, get_prob_pos(final_cost))
@@ -291,18 +292,18 @@ def get_accs(prob):
     index = abs(REFDF["Plr"] - plr).idxmin()
     accs = REFDF.iloc[index]['Thresholds'] 
     return accs
-    
+
 
 def scaled_prob(post_prob):
     '''Scales post probability from min value (prior) to 100 (equal to post 
     prob of 0.70 (max in our case).
     '''
-    prob = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
-    return prob
+    scaled_prob = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
+    return scaled_prob
 
 
 
-def min_dist_from_start(refseq, tstseq):
+def min_dist_from_start(refseq, tstseq, max_len=50):
     '''max_len in codons (useful for primer selection only)
     max_len is used to generate scores which again are useful for primer only.
     returns hamming distance and distance from start nt
@@ -353,14 +354,14 @@ def sa_results_parse(results, threshold=None, termcheck=False):
         tmp_df = AnalyseTerminators(cm='term.cm', seq_df=df)
         res_df = tmp_df.term_check()
         df = res_df.drop(columns=['Min_E_val', 'Accession'])
-             
 
-    
+
+
     if threshold is not None:
         df['closetothreshold'] = df['Accessibility'].apply(lambda x:abs(x\
            - threshold))
 
-    
+
     return df
 
 
@@ -390,16 +391,16 @@ def sort_results(df, direction='decrease', termcheck=False):
          else:
             bool_for_sort.insert(cols_for_sort.index('pExpressed'), True)
          ecoli = True
-            
-            
+
+
     if 'Hits' in df.columns:
          cols.append('Hits')
          cols_for_sort.insert(0, 'Hits')
          bool_for_sort.insert(cols_for_sort.index('Hits'), True)
     if 'E_val' in df.columns:
          cols.append('E_val')
-            
-        
+
+
 
     sequences_df = df[cols].copy()
     sequences_df['Type'] = 'Optimised'
@@ -414,7 +415,7 @@ def sort_results(df, direction='decrease', termcheck=False):
                              inplace=True)
     if 'closetothreshold' in sequences_df.columns:
         sequences_df.drop(['closetothreshold'], inplace=True, axis=1)
-    
+
     if ecoli is True:
         res_df = sequences_df.append({"Sequenceh":org_seq, \
                               "Accessibility":df['org_accs'][0], \
@@ -425,16 +426,16 @@ def sort_results(df, direction='decrease', termcheck=False):
         res_df = sequences_df.append({"Sequenceh":org_seq, \
                               "Accessibility":df['org_accs'][0], \
                               "Type":"Input"}, ignore_index=True)
-    
+
     res_df.loc[0,"Type"]="Selected"
     res_df["Accessibility"] = res_df["Accessibility"].round(2)
-    
+
     if termcheck is True:
         o_hit, o_eval = check_term_org(org_seq)
         res_df['Hits'][res_df.index[res_df['Type'] == 'Input']] = o_hit
         res_df['E_val'][res_df.index[res_df['Type'] == 'Input']] = o_eval
     return res_df
-    
+
 
 def send_data(x, utr=data.pET21_UTR, host='ecoli'):
     '''send json data back
@@ -447,7 +448,7 @@ def send_data(x, utr=data.pET21_UTR, host='ecoli'):
               **{'Hits':x.Hits.iloc[0]},\
               **{'E_val':x['E_val'].iloc[0]}))
         else:
-            
+
             return (dict({'Sequenceh':x.Sequenceh.iloc[0]},\
                           **{'Accessibility':x.Accessibility.iloc[0]},\
                           **{'pExpressed':x.pExpressed.iloc[0]}))
@@ -585,10 +586,10 @@ def parse_input_sequence(request_form):
             ncodons = int((len(seq) - len(seq)%3)/3) - 1
     else:
         ncodons = int((len(seq) - len(seq)%3)/3) - 1
-        
+
     return seq, ncodons
 
-    
+
 def parse_input_utr(request_form):
     '''parse utr
     '''
@@ -600,7 +601,7 @@ def parse_input_utr(request_form):
                                   upper().replace("U", "T"))
         else:
             utr = data.pET21_UTR
-        
+
     return utr
 
 def parse_hosts(request_form):
@@ -628,14 +629,14 @@ def make_plfoldargs(request_form):
     host = 'custom' + ':' + str(nt_pos) + ':' + str(subseg_len)
 #    plfold_args = 'W 210 -u ' + str(subseg_len) + ' O'
     return host
-    
+
 
 def get_plfold_args(host):
     '''make plfold args for custom host
     '''
     if 'custom' in host:
         try:
-            _, b, c = host.split(':')
+            a, b, c = host.split(':')
             nt_pos = int(b)
             subseg_len = int(c)
         except ValueError:
@@ -651,13 +652,13 @@ def get_plfold_args(host):
 def parse_algorithm_settings(request_form):
     '''algorithm settings
     '''
-    
+
     try:
         niter, num_seq = data.ALGORITHM_SETTINGS[request_form['algochoose']]
     except KeyError:
         niter, num_seq = data.ALGORITHM_SETTINGS['quick']
     return niter, num_seq
-    
+
 def parse_input_rms(request_form):
     '''parse rms
     '''
@@ -667,7 +668,7 @@ def parse_input_rms(request_form):
         rms = parse_rms(valid_rms(request_form['rms-sites']))
     return rms
 
-    
+
 def parse_fine_tune(request_form):
     '''parse fine tune level to accs
     '''
@@ -703,7 +704,7 @@ def parse_seed(request_form):
         seed = 0
 
     return seed
-    
+
 def check_term_org(seq):
     df = pd.DataFrame({'Sequence':[seq]})
     tmp_ = AnalyseTerminators(cm='term.cm', seq_df=df)
@@ -712,12 +713,11 @@ def check_term_org(seq):
     e_val = res['E_val']
     return hits, e_val
 
-    
+
 def tips():
     return np.random.choice(data.tips_list)
-    
+
 def last_modified(filepath):
     last_modif = os.path.getmtime(filepath)
     datim = str(datetime.datetime.fromtimestamp(last_modif))
     return datim.split(" ")[0]
-    
