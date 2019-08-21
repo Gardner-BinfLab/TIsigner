@@ -168,12 +168,12 @@ class Optimiser:
                     [subseg_length][len(utr) + nt_pos - 1]
         except Exception as exp:
             raise CustomRangeException("The given custom range was out of"+\
-                                " the length of sequence and 5&prime; UTR.")
+                                " the length of sequence and 5′ UTR.")
         if np.isnan(open_en):
             raise AccessibilityCalculationException("Could not calculate the"+\
                     " opening energy for given custom positions because the"+\
                     " position lies outside of the given sequence and"+\
-                    " 5&prime; UTR.")
+                    " 5′ UTR.")
 
 
         os.remove(tmp+out1)
