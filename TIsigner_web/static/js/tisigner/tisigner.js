@@ -726,12 +726,9 @@ function errorfunc(jqXHR, textStatus, errorThrown) {
     $("#snackbar-msg").collapse("hide");
     $(frm).hide()
 
-    if (jqXHR.status == 500) {
-        $('#input-form-card').append(`<div class='card-body'><h5 class='card-title'>Error ${jqXHR.status}:</h5><p class='card-text'>There was some error in the application. Please review the suggestion below before refreshing the page and try again.</p><h6 class='card-subtitle mb-2 text-muted'>${errors}</h6><div class='container''><canvas id='errorCanvas' style=';width:100%;height:100%'></canvas></div></div>`);
-    } else if (jqXHR.status == 400) {
-        $('#input-form-card').append(`<div class='card-body'><h5 class='card-title'>Error ${jqXHR.status}:</h5><p class='card-text'>There was some error in the application. Please refresh the page and try again.</p><h6 class='card-subtitle mb-2 text-muted'>${errors}</h6><div class='container'><canvas id='errorCanvas' style=';width:100%;height:100%'></canvas></div></div>`);
-    } else {
-        $('#input-form-card').append(`<div class='card-body'><h5 class='card-title'>Error ${jqXHR.status}</h5><h6 class='card-subtitle mb-2 text-muted'>${errors}</h6><p class='card-text'>Please refresh the page and try again.</p><div class='container'><canvas id='errorCanvas' style=';width:100%;height:100%'></canvas></div></div>`);
-    }
+    setTimeout(function () {
+        location.reload(true);
+    }, 5000);
+    $('#input-form-card').append(`<div class='card-body'><h5 class='card-title'>Error ${jqXHR.status}:</h5><p class='card-text'>We encountered the following error:</p><h6 class='card-subtitle mb-2 text-muted'>${errors}</h6><p>The page will now refresh.</p><div class='container''><canvas id='errorCanvas' style=';width:100%;height:100%'></canvas></div></div>`);
     //console.log('An error occurred.'); console.log(errors);
 }

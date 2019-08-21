@@ -22,7 +22,7 @@
     <script src=static/js/material/material.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js></script>
-    <script src=static/js/tisigner/tisigner.min.js></script>
+    <script src=static/js/tisigner/tisigner.js></script>
     <script src=https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js></script>
     <script>
         $(document).ready(function(){resetForms();checkFirsttime();hideExpnotif()});
@@ -200,6 +200,30 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                             <div class="tab-pane fade show active" id=nav-input role=tabpanel aria-labelledby=nav-input-tab>
                                                 <br>
                                                 <div class=form-group>
+                                                    <label for=host-select>Host</label>
+                                                    <select class=form-control id=host-select name=host-select onclick=hostSelect()>
+<option>Escherichia coli</option>
+<option>Saccharomyces cerevisiae</option>
+<option>Mus musculus</option>
+<option>Other</option>
+<option>Custom</option>
+</select>
+                                                    <small id=host-help class="form-text text-muted collapse show">Your input sequence will be optimised for this host.</small>
+                                                </div>
+                                                <div class="form-group collapse" id=cst-region>
+                                                    <div class=floating-label>
+                                                        <label for=custom-region>Start and end positions </label>
+                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by : for example -24:24. Maximum length of region is 150 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
+                                                        <small id=custom-region-help class="form-text text-muted">Custom region to optimise accessibility. Use the following guide to enter start and end position of your region.</small>
+                                                        <blockquote class="blockquote text-center">
+                                                            <ul class="list-unstyled">
+                                                                <li class="text-monospace text-uppercase">... <a class="text-primary">_&nbsp; </a><a class="text-secondary">_&nbsp; </a><a class="text-danger">_&nbsp; </a><a class="text-info">A </a><a class="text-success">T </a><a class="text-warning">G </a>_ _ _ ...</li>
+                                                                <li class="text-monospace">... <a class="text-primary">-3 </a><a class="text-secondary">-2 </a><a class="text-danger">-1 </a><a class="text-info">1 </a><a class="text-success">2 </a><a class="text-warning">3 </a>4 5 6 ...</li>
+                                                            </ul>
+                                                        </blockquote>
+                                                    </div>
+                                                </div>
+                                                <div class=form-group>
                                                     <div class=floating-label>
                                                         <label for=input-sequence>Input sequence</label>
                                                         <textarea input aria-describedby=input-sequence-help class=form-control id=input-sequence placeholder type=text name=input-sequence rows=1 spellcheck=false pattern=[CAGTUcagtu]+$ required></textarea>
@@ -252,30 +276,6 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                             </div>
                                             <div class="tab-pane fade" id=nav-settings role=tabpanel aria-labelledby=navigation-settings-tab>
                                                 <br>
-                                                <div class=form-group>
-                                                    <label for=host-select>Host</label>
-                                                    <select class=form-control id=host-select name=host-select onclick=hostSelect()>
-<option>Escherichia coli</option>
-<option>Saccharomyces cerevisiae</option>
-<option>Mus musculus</option>
-<option>Other</option>
-<option>Custom</option>
-</select>
-                                                    <small id=host-help class="form-text text-muted collapse show">Your input sequence will be optimised for this host.</small>
-                                                </div>
-                                                <div class="form-group collapse" id=cst-region>
-                                                    <div class=floating-label>
-                                                        <label for=custom-region>Start and end positions </label>
-                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by : for example -24:24. Maximum length of region is 150 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
-                                                        <small id=custom-region-help class="form-text text-muted">Custom region to optimise accessibility. Use the following guide to enter start and end position of your region.</small>
-                                                        <blockquote class="blockquote text-center">
-                                                            <ul class="list-unstyled">
-                                                                <li class="text-monospace text-uppercase">... <a class="text-primary">_&nbsp; </a><a class="text-secondary">_&nbsp; </a><a class="text-danger">_&nbsp; </a><a class="text-info">A </a><a class="text-success">T </a><a class="text-warning">G </a>_ _ _ ...</li>
-                                                                <li class="text-monospace">... <a class="text-primary">-3 </a><a class="text-secondary">-2 </a><a class="text-danger">-1 </a><a class="text-info">1 </a><a class="text-success">2 </a><a class="text-warning">3 </a>4 5 6 ...</li>
-                                                            </ul>
-                                                        </blockquote>
-                                                    </div>
-                                                </div>
                                                 <div class=form-group>
                                                     <label for=customRadioInline1>Optimisation region</label>
                                                     <div class="custom-control custom-radio custom-control-inline">

@@ -163,8 +163,17 @@ class Optimiser:
                     encoding='utf-8')
         out1 = '/' + rand_string + '_openen'
         out2 = '/' + rand_string + '_dp.ps'
-        open_en = pd.read_csv(tmp+out1, sep='\t', skiprows=2, header=None)\
+        try:
+            open_en = pd.read_csv(tmp+out1, sep='\t', skiprows=2, header=None)\
                     [subseg_length][len(utr) + nt_pos - 1]
+        except Exception as exp:
+            raise CustomRangeException("The given custom range was out of"+\
+                                " the length of sequence and 5&prime; UTR.")
+        if np.isnan(open_en):
+            raise AccessibilityCalculationException("Could not calculate the"+\
+                    " opening energy for given custom positions because the"+\
+                    " position lies outside of the given sequence and"+\
+                    " 5&prime; UTR.")
 
 
         os.remove(tmp+out1)
@@ -517,6 +526,10 @@ class CustomRangeException(Exception):
     '''
     pass
 
+class AccessibilityCalculationException(Exception):
+    '''Exception when calculating accessibility
+    '''
+    pass
 
 
 
