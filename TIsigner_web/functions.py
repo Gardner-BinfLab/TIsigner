@@ -620,7 +620,7 @@ def parse_input_utr(request_form):
 def parse_hosts(request_form):
     '''parse hosts
     '''
-    if request_form['host-select'] != 'Custom':
+    if not request_form['custom-region']:
         try:
             host = data.HOST_INPUT[request_form['host-select']]
         except KeyError:

@@ -204,8 +204,8 @@ function () {
     $('#input-form')[0].reset();
     //    $("#input-form").collapse("show");
     $('#host-help').collapse("show");
-    $('#cst-region').collapse("hide");
-    $('#custom-region').attr("required", false);
+    //$('#cst-region').collapse("hide");
+    //$('#custom-region').attr("required", false);
     $('#extra-results').collapse("hide");
     $('#primer-length-selection-slider').collapse("show");
     $('#len-primer').val($('#primer-button').val() - 1);
@@ -230,7 +230,7 @@ $(document).ready(function () {
         .change(function () {
             var utrval = $(this).val();
             //console.log('utrchange');
-            if (utrval == '1' && $('#host-select').val() === "Escherichia coli") {
+            if (utrval == '1' && $('#host-select').val() === "Escherichia coli" && $('#custom-region').val().length === 0) {
                 //console.log('lvl-select');
                 $('#optimisation-type').collapse("hide");
                 $('#cst-utr').collapse("hide");
@@ -255,30 +255,25 @@ $(document).ready(function () {
     $('#host-select').change(function () {
         var host = $(this).val();
         //console.log('hostchange', host);
-        if (host === 'Custom') {
-            //console.log('custom');
-            $('#optimisation-type').collapse("show");
-            $("#lvl-selection-slider").collapse("hide");
-            $('#host-help').collapse("hide");
-            $('#cst-region').collapse("show");
-            $('#custom-region').attr("required", true);
-        } else if (host === "Escherichia coli" && $('#utr').val() == '1') {
+
+        if (host === "Escherichia coli" && $('#utr').val() == '1' && $('#custom-region').val().length === 0) {
             //console.log('ok');
             $('#optimisation-type').collapse("hide");
             $("#lvl-selection-slider").collapse("show");
             $('#lvl-tune-val-txt').val(100);
             $('#host-help').collapse("show");
-            $('#cst-region').collapse("hide");
-            $('#custom-region').attr("required", false);
+            //$('#cst-region').collapse("hide");
+            //$('#custom-region').attr("required", false);
         } else {
             $('#optimisation-type').collapse("show");
             $('#host-help').collapse("show");
-            $('#cst-region').collapse("hide");
-            $('#custom-region').attr("required", false);
+            //$('#cst-region').collapse("hide");
+            //$('#custom-region').attr("required", false);
         }
     });
-
+    
 });
+
 
 //$(document).ready(function(){ });
 
@@ -304,7 +299,7 @@ function hostSelect() {
         .change(function () {
             if ($(this).val() !== "Escherichia coli") {
                 $("#lvl-selection-slider").collapse("hide");
-            } else if ($(this).val() === "Escherichia coli" && $('#utr').val() === '1') {
+            } else if ($(this).val() === "Escherichia coli" && $('#utr').val() === '1' && $('#custom-region').val().length === 0) {
                 $("#lvl-selection-slider").collapse("show");
             }
         });
@@ -391,8 +386,8 @@ function maketable(elem, data) {
 function validateCustomRange(elem) {
     var region = elem.val();
     var reg = region.split(':');
-    var attr = elem.attr("required");
-    if (attr === "required") {
+//    var attr = elem.attr("required");
+//    if (attr === "required") {
         if (reg.length === 2) {
             var dist;
             if ((reg[0] < 0 && reg[1] < 0) || (reg[0] > 0 && reg[1] > 0) || reg[0] > reg[1]) {
@@ -410,10 +405,14 @@ function validateCustomRange(elem) {
             } else {
                 return true;
             }
+        } else if (region.length === 0) {
+            return true;
+        } else {
+            return "Incorrect values in custom region."
         }
-    } else {
-        return true;
-    }
+//    } else {
+//        return true;
+//    }
 }
 
 //$(document).ready(function() {
@@ -514,7 +513,7 @@ function validateinputs(event) {
         $("#new-table0 tbody").remove();
         $("#new-table1 tbody").remove();
         $("#new-table2 tbody").remove();
-        if ($('select[name=utr]').val() === '1' && $('select[name=host-select]').val() === 'Escherichia coli') {
+        if ($('select[name=utr]').val() === '1' && $('select[name=host-select]').val() === 'Escherichia coli' && $('#custom-region').val().length === 0) {
             $('td:nth-child(3),th:nth-child(3)').show();
         } else {
             $('td:nth-child(3),th:nth-child(3)').hide();
@@ -563,7 +562,7 @@ function plotaccs(ctx, data) {
             .destroy();
     }
 
-    var showGraph = ($('#utr').val() === '1' && $('#host-select').val() === "Escherichia coli")
+    var showGraph = ($('#utr').val() === '1' && $('#host-select').val() === "Escherichia coli" && $('#custom-region').val().length === 0)
         ? 1
         : 0;
     if (showGraph == 1) {

@@ -78,9 +78,8 @@ DASHBOARD = os.path.join(os.path.dirname(__file__),'dashboard.config')
 
 
 tips_list = ["Lost? Click example.",\
-        "You can change the host in <a href=#nav-demo>customise</a> section.",\
         "You can select a custom region to maximise accessibility under" +\
-        " host selection dropdown.",\
+        " advanced parameters of <a href=#nav-demo>customise</a> section. ",\
         "We can also check for terminators. This option is found under" +\
         " advanced parameters of <a href=#nav-demo>customise</a> section.", \
         "You can change the results if you change the seed in " + \
