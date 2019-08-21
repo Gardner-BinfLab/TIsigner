@@ -742,7 +742,7 @@ function successfunc(response) {
 
 function errorfunc(jqXHR, textStatus, errorThrown) {
     //    var errors = jqXHR.responseText;
-    $('#infinite-prog-bar').hide();
+    $("#infinite-prog-bar").collapse("hide");
     $("#snackbar-msg").collapse("hide");
     // $('#try-again').trigger("click");    setTimeout(function () {
     // location.reload(true);    }, 5000);
