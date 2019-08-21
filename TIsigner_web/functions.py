@@ -633,14 +633,19 @@ def parse_hosts(request_form):
 def make_plfoldargs(request_form):
     '''determine plfold args from custom range
     '''
-    start, end = request_form['custom-region'].split(':')
-    nt_pos = int(end) if int(end) > int(start) else int(start)
-    subseg_len = abs(int(end) - int(start))
+    try:
+        start, end = request_form['custom-region'].split(':')
+        start = int(start)
+        end = int(end)
+    except ValueError:
+        raise CustomRangeException("Bad values for custom range.")
+    
+    nt_pos = end if end > start else start
+    subseg_len = abs(end - start)
     if subseg_len >= 151:
         raise CustomRangeException("Custom region is greater then 150 " + \
                                    "nucleotides.")
     host = 'custom' + ':' + str(nt_pos) + ':' + str(subseg_len)
-#    plfold_args = 'W 210 -u ' + str(subseg_len) + ' O'
     return host
 
 

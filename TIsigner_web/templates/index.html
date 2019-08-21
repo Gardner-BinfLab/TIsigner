@@ -38,7 +38,7 @@
                         <a class="collapse btn btn-lg btn-light mb-3 mr-3 rounded shadow-8" data-toggle=collapse href=#submit-inputs aria-expanded=true id=launch>
                             <i class="material-icons mr-2">launch</i>Launch
                         </a>
-                        <a class="btn btn-lg btn-secondary mb-3 mr-3 rounded shadow-8" data-toggle=modal href=#quick-help-modal>
+                        <a class="btn btn-lg btn-secondary mb-3 mr-3 rounded shadow-8" data-toggle=modal href=#quick-help-modal id='faq-btn'>
                             <i class="material-icons mr-2">help</i>FAQ
                         </a>
                         <script>
@@ -324,7 +324,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                 <div class="form-group" id=cst-region>
                                                     <div class=floating-label>
                                                         <label for=custom-region>Custom region to optimise accessibility</label>
-                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by : for example -24:24. Maximum length of region is 150 nt. This deactivates the expression score tuner." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
+                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by colon (:). Default region for E. coli, S. cerevisiae, M. musculus and Other is -24:24, −7:89, -8:11 and -24:89 respectively. Maximum length of region is 150 nt and minimum 5 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
                                                         <small id=custom-region-help class="form-text text-muted">Use the following guide to enter start and end position of your region.</small>
                                                         <blockquote class="blockquote text-center">
                                                             <ul class="list-unstyled">
@@ -367,7 +367,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                     </div>
                     <div class=mb-4 id=index-content-one>
                         <h2 class=text-primary>Our services</h2>
-                        <p class=typography-subheading>TIsigner optimises the translation initiation coding region of a gene of interest to improve recombinant protein production in <span class=font-italic>Escherichia coli</span>, <span class=font-italic>Saccharomyces cerevisiae</span> and <span class=font-italic>Mus musculus</span> (see <button class="btn btn-outline-dark" type="button"  data-toggle=modal href=#quick-help-modal>Faq</button>). In contrast to existing software, TIsigner suggests minimum numbers of synonymous codon changes to the input sequence. This enables a standard PCR cloning for the optimised sequence.</p>
+                        <p class=typography-subheading>TIsigner optimises the translation initiation coding region of a gene of interest to improve recombinant protein production in <span class=font-italic>Escherichia coli</span>, <span class=font-italic>Saccharomyces cerevisiae</span> and <span class=font-italic>Mus musculus</span> (see <a href="javascript:void($('#faq-btn').trigger('click'))">FAQ</a>). In contrast to existing software, TIsigner suggests minimum numbers of synonymous codon changes to the input sequence. This enables a standard PCR cloning for the optimised sequence.</p>
                         <div class=block-multiquote>
                             <div class=row>
                                 <div class="col-md-6 mt-4">

@@ -204,8 +204,9 @@ function () {
     $('#input-form')[0].reset();
     //    $("#input-form").collapse("show");
     $('#host-help').collapse("show");
-    //$('#cst-region').collapse("hide");
-    //$('#custom-region').attr("required", false);
+    // $('#cst-region').collapse("hide"); $('#custom-region').attr("required",
+    // false);
+    $('#optimisation-type').collapse("hide");
     $('#extra-results').collapse("hide");
     $('#primer-length-selection-slider').collapse("show");
     $('#len-primer').val($('#primer-button').val() - 1);
@@ -244,6 +245,9 @@ $(document).ready(function () {
                 $('#cst-utr').collapse("show");
                 $('#custom-utr').attr("required", true);
                 $("#lvl-selection-slider").collapse("hide")
+            } else if ($(this).val().length === 0) {
+                $('#optimisation-type').collapse("hide");
+                $("#lvl-selection-slider").collapse("hide");
             } else {
                 //console.log('utrselect');
                 $('#optimisation-type').collapse("show");
@@ -266,33 +270,32 @@ $(document).ready(function () {
             $('#lvl-tune-val-txt').val(100);
             $('#cst-utr').collapse("hide");
             $('#custom-utr').attr("required", false);
-            //$('#cst-region').collapse("hide");
-            //$('#custom-region').attr("required", false);
+            // $('#cst-region').collapse("hide"); $('#custom-region').attr("required",
+            // false);
         } else {
             $("#lvl-selection-slider").collapse("hide");
             $('#optimisation-type').collapse("show");
             $('#cst-utr').collapse("show");
             $('#custom-utr').attr("required", true);
-            //$('#cst-region').collapse("hide");
-            //$('#custom-region').attr("required", false);
+            // $('#cst-region').collapse("hide"); $('#custom-region').attr("required",
+            // false);
         }
     });
 
-    $('#custom-region').on('change', function(){
-      if ($('#host-select').val() === "Escherichia coli" && $(this).val().length === 0 && $('#utr').val('1')){
-        $('#optimisation-type').collapse("hide");
-        $("#lvl-selection-slider").collapse("show");
-        $('#lvl-tune-val-txt').val(100);
-        $('#cst-utr').collapse("hide");
-        $('#custom-utr').attr("required", false);
-      } else {
-        $("#lvl-selection-slider").collapse("hide");
-        $('#optimisation-type').collapse("show");
-      }
+    $('#custom-region').on('change', function () {
+        if ($('#host-select').val() === "Escherichia coli" && $(this).val().length === 0 && $('#utr').val('1')) {
+            $('#optimisation-type').collapse("hide");
+            $("#lvl-selection-slider").collapse("show");
+            $('#lvl-tune-val-txt').val(100);
+            $('#cst-utr').collapse("hide");
+            $('#custom-utr').attr("required", false);
+        } else {
+            $("#lvl-selection-slider").collapse("hide");
+            $('#optimisation-type').collapse("show");
+        }
     })
 
 });
-
 
 //$(document).ready(function(){ });
 
@@ -381,7 +384,7 @@ $(document)
         $('#optimisation-type').collapse("hide");
         $("#lvl-selection-slider").collapse("show");
         $('#lvl-tune-val-txt').val("100");
-        updateTuning('#lvl-tune');
+        $('#lvl-tune').val("100");
         $('.floating-label .custom-select, .floating-label .form-control').floatinglabel();
         $('#optimisation-type').collapse("hide");
         $('#cst-utr').collapse("hide");
@@ -407,33 +410,30 @@ function maketable(elem, data) {
 function validateCustomRange(elem) {
     var region = elem.val();
     var reg = region.split(':');
-//    var attr = elem.attr("required");
-//    if (attr === "required") {
-        if (reg.length === 2) {
-            var dist;
-            if ((reg[0] < 0 && reg[1] < 0) || (reg[0] > 0 && reg[1] > 0) || reg[0] > reg[1]) {
-                dist = Math.abs(reg[0] - reg[1])
-            } else if (reg[1] > reg[0]) {
-                dist = Math.abs(reg[1] - reg[0])
-            }
-
-            if (isNaN(dist)) {
-                return "The custom region input has non numeric values."
-            } else if (dist <= 4) {
-                return "The custom region is too small. "
-            } else if (dist >= 151) {
-                return "The custom region is greater then 150 nts."
-            } else {
-                return true;
-            }
-        } else if (region.length === 0) {
-            return true;
-        } else {
-            return "Incorrect values in custom region."
+    //    var attr = elem.attr("required");    if (attr === "required") {
+    if (reg.length === 2) {
+        var dist;
+        if ((reg[0] < 0 && reg[1] < 0) || (reg[0] > 0 && reg[1] > 0) || reg[0] > reg[1]) {
+            dist = Math.abs(reg[0] - reg[1])
+        } else if (reg[1] > reg[0]) {
+            dist = Math.abs(reg[1] - reg[0])
         }
-//    } else {
-//        return true;
-//    }
+
+        if (isNaN(dist)) {
+            return "The custom region input has non numeric values."
+        } else if (dist <= 4) {
+            return "The custom region is too small. "
+        } else if (dist >= 151) {
+            return "The custom region is greater then 150 nts."
+        } else {
+            return true;
+        }
+    } else if (region.length === 0) {
+        return true;
+    } else {
+        return "Incorrect values in custom region."
+    }
+    //    } else {        return true;    }
 }
 
 //$(document).ready(function() {
@@ -741,19 +741,23 @@ function successfunc(response) {
 }
 
 function errorfunc(jqXHR, textStatus, errorThrown) {
-//    var errors = jqXHR.responseText;
+    //    var errors = jqXHR.responseText;
     $('#infinite-prog-bar').hide();
     $("#snackbar-msg").collapse("hide");
-//    $('#try-again').trigger("click");
-
-//    setTimeout(function () {
-//        location.reload(true);
-//    }, 5000);
-    $('#snackbar-msg-error').text('Error ' + `${jqXHR.status}` + ': ' + `${jqXHR.responseText}`).collapse("toggle");
-        setTimeout(function () {
-            $('#snackbar-msg-error').collapse("toggle");
-            $('#try-again').trigger("click");
-        }, 5000);
-    //$('#input-form-card').append(`<div class='card-body'><h5 class='card-title'>Error ${jqXHR.status}:</h5><p class='card-text'>We encountered the following error:</p><h6 class='card-subtitle mb-2 text-muted'>${errors}</h6><p>The page will now refresh.</p><div class='container''><canvas id='errorCanvas' style=';width:100%;height:100%'></canvas></div></div>`);
-    //console.log('An error occurred.'); console.log(errors);
+    // $('#try-again').trigger("click");    setTimeout(function () {
+    // location.reload(true);    }, 5000);
+    $('#snackbar-msg-error')
+        .text('Error ' + `${jqXHR.status}` + ': ' + `${jqXHR.responseText}`)
+        .collapse("toggle");
+    setTimeout(function () {
+        $('#snackbar-msg-error').collapse("toggle");
+        $('#try-again').trigger("click");
+    }, 5000);
+    // $('#input-form-card').append(`<div class='card-body'><h5
+    // class='card-title'>Error ${jqXHR.status}:</h5><p class='card-text'>We
+    // encountered the following error:</p><h6 class='card-subtitle mb-2
+    // text-muted'>${errors}</h6><p>The page will now refresh.</p><div
+    // class='container''><canvas id='errorCanvas'
+    // style=';width:100%;height:100%'></canvas></div></div>`); console.log('An
+    // error occurred.'); console.log(errors);
 }
