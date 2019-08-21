@@ -22,7 +22,7 @@
     <script src=static/js/material/material.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js></script>
-    <script src=static/js/tisigner/tisigner.min.js></script>
+    <script src=static/js/tisigner/tisigner.js></script>
     <script src=https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js></script>
     <script>
         $(document).ready(function(){resetForms();checkFirsttime();hideExpnotif()});
@@ -124,6 +124,10 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                             Sequence submitted. Please wait for a moment...
                                         </div>
                                     </div>
+                                    <div id=snackbar-msg-error class="snackbar snackbar-right collapse snackbar-multiline">
+                                        <div class=snackbar-body>
+                                        </div>
+                                    </div>
                                     <div class=collapse id=show-results>
                                         <h4 class=card-title>Results</h4>
                                         <hr>
@@ -202,12 +206,13 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                 <div class=form-group>
                                                     <label for=host-select>Host</label>
                                                     <select class=form-control id=host-select name=host-select onclick=hostSelect()>
+<option label></option>
 <option>Escherichia coli</option>
 <option>Saccharomyces cerevisiae</option>
 <option>Mus musculus</option>
 <option>Other</option>
 </select>
-                                                    <small id=host-help class="form-text text-muted collapse show">Your input sequence will be optimised for this host.</small>
+                                                    <small id=host-help class="form-text text-muted">Your input sequence will be optimised for this host.</small>
                                                 </div>
                                                 <div class=form-group>
                                                     <div class=floating-label>
@@ -234,7 +239,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                         <small id=custom-utr-help class="form-text text-muted">A custom 5&prime; UTR sequence.</small>
                                                     </div>
                                                 </div>
-                                                <div class="form-group collapse show" id="optimisation-type">
+                                                <div class="form-group collapse hide" id="optimisation-type">
                                                     <label for=customRadioInline0>Optimisation type</label>
                                                     <div class="custom-control custom-radio custom-control-inline">
                                                         <input type=radio id=optimisation-direction0 name=optimisation-direction class="custom-control-input form-check-input" checked value='decrease'>
@@ -315,7 +320,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                     </div>
                                                     <p class=text-muted>If checked, the number of hits and E-values will also be reported.</p>
                                                     <br>
-                                                    
+
                                                 <div class="form-group" id=cst-region>
                                                     <div class=floating-label>
                                                         <label for=custom-region>Custom region to optimise accessibility</label>
