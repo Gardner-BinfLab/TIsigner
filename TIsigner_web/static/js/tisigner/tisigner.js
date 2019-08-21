@@ -263,7 +263,7 @@ $(document).ready(function () {
             $('#cst-region').collapse("show");
             $('#custom-region').attr("required", true);
         } else if (host === "Escherichia coli" && $('#utr').val() == '1') {
-            console.log('ok');
+            //console.log('ok');
             $('#optimisation-type').collapse("hide");
             $("#lvl-selection-slider").collapse("show");
             $('#lvl-tune-val-txt').val(100);
