@@ -66,7 +66,6 @@ def optimiser():
             direction = request.form['optimisation-direction']
         else:
             direction = 'decrease'
-        print(request.form['optimisation-direction'])
         seeds = list(range(seed, seed+num_seq))
         rand_states = [np.random.RandomState(i) for i in seeds]
         new_opt = Optimiser(seq=seq, host=host, ncodons=ncodons, utr=utr, \
