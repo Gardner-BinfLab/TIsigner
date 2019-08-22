@@ -268,7 +268,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                             <div class="tab-pane fade" id=nav-settings role=tabpanel aria-labelledby=navigation-settings-tab>
                                                 <br>
                                                 <div class=form-group>
-                                                    <label for=customRadioInline1>Optimisation region</label>
+                                                    <label for=customRadioInline1>Synonymous codon substitution</label>
                                                     <div class="custom-control custom-radio custom-control-inline">
                                                         <input type=radio id=primer-button name=designMode class="custom-control-input form-check-input" checked value=10 onclick=ntSlider()>
                                                         <label class="custom-control-label form-check-label" for=primer-button>Translation initiation coding region</label>
@@ -324,8 +324,8 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                 <div class="form-group" id=cst-region>
                                                     <div class=floating-label>
                                                         <label for=custom-region>Custom region to optimise accessibility</label>
-                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by colon (:). Default region for E. coli, S. cerevisiae, M. musculus and Other is -24:24, −7:89, -8:11 and -24:89 respectively. Maximum length of region is 150 nt and minimum 5 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
-                                                        <small id=custom-region-help class="form-text text-muted">Use the following guide to enter start and end position of your region.</small>
+                                                        <textarea input aria-describedby=custom-region-help class=form-control id=custom-region placeholder="Positions can be separated by a colon (:). Default regions for E. coli, S. cerevisiae, M. musculus and Other are -24:24, −7:89, -8:11 and -24:89, respectively. Maximum 150 nt and minimum 5 nt." type=text name=custom-region rows=1 spellcheck=false maxlength=7></textarea>
+                                                        <small id=custom-region-help class="form-text text-muted">Use the following guide to enter the start and end positions of your region.</small>
                                                         <blockquote class="blockquote text-center">
                                                             <ul class="list-unstyled">
                                                                 <li class="text-monospace text-uppercase">... <a class="text-primary">_&nbsp; </a><a class="text-secondary">_&nbsp; </a><a class="text-danger">_&nbsp; </a><a class="text-info">A </a><a class="text-success">T </a><a class="text-warning">G </a>_ _ _ ...</li>
