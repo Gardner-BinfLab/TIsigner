@@ -550,7 +550,7 @@ def valid_input_seq(seq):
         raise UnknownNucleotidesException('Unknown nucleotides.')
     elif len(seq)%3 != 0:
         raise InvalidSequenceException('Sequence is not divisible by 3.')
-    elif len(seq) >= 3000:
+    elif len(seq) >= 300000:
         raise InvalidSequenceException('Sequence too long for web version.'+
                                        'Try command line version.')
 
@@ -582,7 +582,7 @@ def valid_utr(seq):
         raise ShortSequenceException('UTR is too short.')
     elif not pattern.match(seq):
         raise UnknownNucleotidesException('Unknown nucleotides.')
-    elif len(seq) >= 300:
+    elif len(seq) >= 3000:
         raise InvalidSequenceException('UTR too long for web version.'+
                                        'Try command line version.')
     return seq

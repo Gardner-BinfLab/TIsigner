@@ -22,7 +22,7 @@
     <script src=static/js/material/material.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js></script>
-    <script src=static/js/tisigner/tisigner.min.js></script>
+    <script src=static/js/tisigner/tisigner.js></script>
     <script src=https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js></script>
     <script>
         $(document).ready(function(){resetForms();checkFirsttime();hideExpnotif()});
@@ -205,7 +205,7 @@ are predictive of successful heterologous protein expression</cite>. BioRxiv. (2
                                                 <br>
                                                 <div class=form-group>
                                                     <label for=host-select>Host</label>
-                                                    <select class=form-control id=host-select name=host-select onclick=hostSelect()>
+                                                    <select class=form-control id=host-select name=host-select onclick=hostSelect() required>
 <option label></option>
 <option>Escherichia coli</option>
 <option>Saccharomyces cerevisiae</option>

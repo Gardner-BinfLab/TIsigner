@@ -476,7 +476,7 @@ function validateinputs(event) {
     //console.log(regionrange);
     var customrangevalidatemsg = validateCustomRange($('#custom-region'));
 
-    if (common.length !== 0 || !reg.test(inpSeq) || !reg.test(utrNucl) || startCdn !== "ATG" || cdns.length < 25 || !rmsreg.test(rms) || inpSeq.length >= 3000 || inpUtr.length >= 300 || inpSeq.length % 3 != 0 || utrNucl.length < 71 || customrangevalidatemsg !== true) {
+    if (common.length !== 0 || !reg.test(inpSeq) || !reg.test(utrNucl) || startCdn !== "ATG" || cdns.length < 25 || !rmsreg.test(rms) || inpSeq.length >= 300000 || inpUtr.length >= 3000 || inpSeq.length % 3 != 0 || utrNucl.length < 71 || customrangevalidatemsg !== true) {
         // (!regionreg.test(cstregion) && $('#custom-region').attr('required') !==
         // undefined)) {
 
@@ -492,8 +492,12 @@ function validateinputs(event) {
         } else if (!reg.test(inpSeq)) {
             $('#seq-err-msg').append("Only A, T, G, C, U are allowed in the input sequence.");
             //console.log("Unknown nucleotides in input sequence.");
-        } else if (inpSeq.length >= 3000) {
-            $('#seq-err-msg').append("The input sequence is too long (>3000 nts). Please use command line version for " +
+        } else if (inpSeq.length >= 300000) {
+            $('#seq-err-msg').append("The input sequence is too long (>300,000 nt). Please use command line version for " +
+                    "longer sequence optimisation.");
+            //console.log("Long input sequence.");
+        } else if (inpUtr.length >= 3000) {
+            $('#seq-err-msg').append("The input 5&#8242; UTR sequence is too long (>3000 nt). Please use command line version for " +
                     "longer sequence optimisation.");
             //console.log("Long input sequence.");
         } else if (inpSeq.length % 3 != 0) {
@@ -720,6 +724,7 @@ function plotaccs(ctx, data) {
     }
 }
 
+
 function successfunc(response) {
     //show json in table
     maketable("#new-table0", response.Selected);
@@ -735,6 +740,8 @@ function successfunc(response) {
     $("#snackbar-msg").collapse("hide");
     $(frm).hide()
     $("#show-results").collapse("show");
+    //store file in local storage to maybe retrieve it later
+    localStorage.setItem('newresults', JSON.stringify(response));
 
     //console.log('Data received from server.'); console.log(response);
 
@@ -760,4 +767,10 @@ function errorfunc(jqXHR, textStatus, errorThrown) {
     // class='container''><canvas id='errorCanvas'
     // style=';width:100%;height:100%'></canvas></div></div>`); console.log('An
     // error occurred.'); console.log(errors);
+}
+
+
+function filesave(blob){
+    var f = JSON.parse(localStorage.getItem(blob));
+    saveAs(f, "results.txt");
 }
