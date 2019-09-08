@@ -304,8 +304,8 @@ def scaled_prob(post_prob):
     '''Scales post probability from min value (prior) to 100 (equal to post 
     prob of 0.70 (max in our case).
     '''
-    scaled_prob = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
-    return scaled_prob
+    scaled_p = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
+    return scaled_p
 
 
 
