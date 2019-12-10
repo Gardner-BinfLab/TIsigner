@@ -158,78 +158,80 @@ var failed_openen = [
     2.1888850127133413e-06
 ]
 
-function resetForms() {
-    document
-        .forms['input-form']
-        .reset();
+
+
+$(document).ready(function() {
+    document.forms['input-form'].reset();
     $('.floating-label .custom-select, .floating-label .form-control').floatinglabel();
-}
+    Waves.attach('.btn');
+    Waves.init();
+})
 
-function checkFirsttime() {
-    if (Cookies.get('first-launched') == '1') {
-        $('#launch').remove();
-        $('#submit-inputs').collapse("show");
-    }
-}
-
-function hideExpnotif() {
-    if (Cookies.get('exp-notif-dismiss') == '1') {
-        $('#experimental-notification').remove();
-    }
-}
+// function checkFirsttime() {
+//     if (Cookies.get('first-launched') == '1') {
+//         $('#launch').remove();
+//         $('#submit-inputs').collapse("show");
+//     }
+// }
+//
+// function hideExpnotif() {
+//     if (Cookies.get('exp-notif-dismiss') == '1') {
+//         $('#experimental-notification').remove();
+//     }
+// }
 
 $(document)
     .on("click", '#show-more',
-    //$('#show-more').on('click',
-    function () {
-        $(this)
-            .text(function (i, v) {
-                return v === 'Show more'
-                    ? 'Hide'
-                    : 'Show more'
-            });
-    })
+        //$('#show-more').on('click',
+        function() {
+            $(this)
+                .text(function(i, v) {
+                    return v === 'Show more' ?
+                        'Hide' :
+                        'Show more'
+                });
+        })
 
 // After clicking retry, we clear all forms and tables, hide them and show
 // sequence input form.
 $(document).on("click", '#try-again',
-//$('#try-again').on('click',
-function () {
-    //$("#input-form").collapse("show");
-    $('#input-form').css('pointer-events', 'auto');
-    $('#submit-btn')[0].disabled = false;
-    $('#show-results').collapse("hide");
-    $('#show-more').html('Show more');
-    $('#infinite-prog-bar').collapse("hide");
-    $('#input-form')[0].reset();
-    //    $("#input-form").collapse("show");
-    $('#host-help').collapse("show");
-    // $('#cst-region').collapse("hide"); $('#custom-region').attr("required",
-    // false);
-    $('#optimisation-type').collapse("hide");
-    $('#extra-results').collapse("hide");
-    $('#primer-length-selection-slider').collapse("show");
-    $('#len-primer').val($('#primer-button').val() - 1);
-    $('#len-primer-val').val("First " + $('#len-primer').val());
-    $('#lvl-tune-val-txt').val(100);
-    $('#lvl-tune').val($('#lvl-tune-val-txt').val());
-    $('#lvl-tune-val').val($('#lvl-tune-val-txt').val());
-    $("#lvl-selection-slider").collapse("hide");
-    $('#advancedSwitchText').attr("class", "custom-control-label text-muted");
-    $('#default-algorithm').attr("class", "custom-control custom-radio custom-control-inline");
-    $('#algo-options-quick').attr("checked", true);
-    $('#alt-algorithm').attr("class", "custom-control custom-radio custom-control-inline");
-    $('#algo-options-deep').attr("checked", false);
-    $('#cst-utr').collapse("hide");
-    $("#algorithm-settings").collapse("hide");
-    $('#input-form').show();
-    $('#nav-input-tab').tab('show');
-});
+    //$('#try-again').on('click',
+    function() {
+        //$("#input-form").collapse("show");
+        $('#input-form').css('pointer-events', 'auto');
+        $('#submit-btn')[0].disabled = false;
+        $('#show-results').collapse("hide");
+        $('#show-more').html('Show more');
+        $('#infinite-prog-bar').collapse("hide");
+        $('#input-form')[0].reset();
+        //    $("#input-form").collapse("show");
+        $('#host-help').collapse("show");
+        // $('#cst-region').collapse("hide"); $('#custom-region').attr("required",
+        // false);
+        $('#optimisation-type').collapse("hide");
+        $('#extra-results').collapse("hide");
+        $('#primer-length-selection-slider').collapse("show");
+        $('#len-primer').val($('#primer-button').val() - 1);
+        $('#len-primer-val').val("First " + $('#len-primer').val());
+        $('#lvl-tune-val-txt').val(100);
+        $('#lvl-tune').val($('#lvl-tune-val-txt').val());
+        $('#lvl-tune-val').val($('#lvl-tune-val-txt').val());
+        $("#lvl-selection-slider").collapse("hide");
+        $('#advancedSwitchText').attr("class", "custom-control-label text-muted");
+        $('#default-algorithm').attr("class", "custom-control custom-radio custom-control-inline");
+        $('#algo-options-quick').attr("checked", true);
+        $('#alt-algorithm').attr("class", "custom-control custom-radio custom-control-inline");
+        $('#algo-options-deep').attr("checked", false);
+        $('#cst-utr').collapse("hide");
+        $("#algorithm-settings").collapse("hide");
+        $('#tisigner-form-div').collapse('show');
+        $('#nav-input-tab').tab('show');
+    });
 
-$(document).ready(function () {
+$(document).ready(function() {
     //Show custom UTR form if custom is selcted from drop down.
     $('#utr')
-        .on('change', function () {
+        .on('change', function() {
             var utrval = $(this).val();
             //console.log('utrchange');
             if (utrval == '1' && $('#host-select').val() === "Escherichia coli" && $('#custom-region').val().length === 0) {
@@ -257,7 +259,7 @@ $(document).ready(function () {
             }
         });
 
-    $('#host-select').on('change', function () {
+    $('#host-select').on('change', function() {
         var host = $(this).val();
         //console.log('hostchange', host);
 
@@ -282,7 +284,7 @@ $(document).ready(function () {
         }
     });
 
-    $('#custom-region').on('change', function () {
+    $('#custom-region').on('change', function() {
         if ($('#host-select').val() === "Escherichia coli" && $(this).val().length === 0 && $('#utr').val('1')) {
             $('#optimisation-type').collapse("hide");
             $("#lvl-selection-slider").collapse("show");
@@ -318,7 +320,7 @@ function updateTuning(elem) {
 
 function hostSelect() {
     $('select[name=host-select]')
-        .on('change', function () {
+        .on('change', function() {
             if ($(this).val() !== "Escherichia coli") {
                 $("#lvl-selection-slider").collapse("hide");
                 $("#utr").val('3');
@@ -331,7 +333,7 @@ function hostSelect() {
 
 function ntSlider() {
     $('input[name="designMode"]')
-        .on('change', function () {
+        .on('change', function() {
             if ($('#primer-button').prop('checked')) {
                 $('#primer-length-selection-slider').collapse("show");
             } else {
@@ -343,7 +345,7 @@ function ntSlider() {
 //script to get the value from slider
 function updateRange(elem) {
     $('#len-primer-val').val("First " + $(elem).val()); //+" codons");
-    $('#primer-button').val(+ $(elem).val() + 1);
+    $('#primer-button').val(+$(elem).val() + 1);
     //+1 so that length is counted from start codon
 }
 
@@ -372,11 +374,11 @@ function termcheckset() {
 }
 
 $(document)
-    .on("click", '#demo', function () {
+    .on("click", '#demo', function() {
         $('.floating-label .custom-select, .floating-label .form-control').floatinglabel();
         //console.log('demo clicked');
         $('#input-sequence').val("ATGAAGAAATCTCTCTCGACCTCTGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTAC" +
-                "CATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
+            "CATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG");
         $('#utr').val('1');
         $('#input-form').css('pointer-events', 'auto');
         $('#host-select').val('Escherichia coli');
@@ -397,9 +399,9 @@ $(document)
 function maketable(elem, data) {
     var tbody = $("<tbody />"),
         tr;
-    $.each(data, function (_, obj) {
+    $.each(data, function(_, obj) {
         tr = $("<tr />");
-        $.each(obj, function (_, text) {
+        $.each(obj, function(_, text) {
             tr.append("<td>" + text + "</td>")
         });
         tr.appendTo(tbody);
@@ -451,9 +453,9 @@ function validateinputs(event) {
         .toUpperCase();
     var utrNucl; //var to check if UTR is valid
 
-    $('#utr').val() == '3'
-        ? (utrNucl = inpUtr)
-        : (utrNucl = defUtr);
+    $('#utr').val() == '3' ?
+        (utrNucl = inpUtr) :
+        (utrNucl = defUtr);
     //console.log(utrNucl);
     var reg = /^[ATGCU]*$/;
     var stCdns = ["TAG", "TGA", "TAA"]
@@ -473,7 +475,7 @@ function validateinputs(event) {
     }
 
     var common = cdns.filter(value => stCdns.includes(value))
-    //console.log(regionrange);
+        //console.log(regionrange);
     var customrangevalidatemsg = validateCustomRange($('#custom-region'));
 
     if (common.length !== 0 || !reg.test(inpSeq) || !reg.test(utrNucl) || startCdn !== "ATG" || cdns.length < 25 || !rmsreg.test(rms) || inpSeq.length >= 300000 || inpUtr.length >= 3000 || inpSeq.length % 3 != 0 || utrNucl.length < 71 || customrangevalidatemsg !== true) {
@@ -494,11 +496,11 @@ function validateinputs(event) {
             //console.log("Unknown nucleotides in input sequence.");
         } else if (inpSeq.length >= 300000) {
             $('#seq-err-msg').append("The input sequence is too long (>300,000 nt). Please use command line version for " +
-                    "longer sequence optimisation.");
+                "longer sequence optimisation.");
             //console.log("Long input sequence.");
         } else if (inpUtr.length >= 3000) {
             $('#seq-err-msg').append("The input 5&#8242; UTR sequence is too long (>3000 nt). Please use command line version for " +
-                    "longer sequence optimisation.");
+                "longer sequence optimisation.");
             //console.log("Long input sequence.");
         } else if (inpSeq.length % 3 != 0) {
             $('#seq-err-msg').append("The input sequence is not divisible by 3.");
@@ -514,7 +516,7 @@ function validateinputs(event) {
             //console.log("Premature stop codons.");
         } else if (!rmsreg.test(rms)) {
             $('#seq-err-msg').append("The input restriction sites are not in a proper format. Please use comma to sepa" +
-                    "rate multiple sites. Only A, T, G, C, U are allowed.");
+                "rate multiple sites. Only A, T, G, C, U are allowed.");
             //console.log("Wrong RMS format");
         } else if (utrNucl.length != 0 && !reg.test(utrNucl)) {
             $('#seq-err-msg').append("Only A, T, G, C, U are allowed in the input 5&#8242; UTR sequence.");
@@ -570,11 +572,11 @@ function plotaccs(ctx, data) {
     };
     var accSel = []; //selected sequence accessibility
     var accInp = []; //selected sequence accessibility
-    $.each(data.Selected, function (index, element) {
+    $.each(data.Selected, function(index, element) {
         accSel.push(element.Accessibility);
     });
 
-    $.each(data.Input, function (index, element) {
+    $.each(data.Input, function(index, element) {
         accInp.push(element.Accessibility);
     });
 
@@ -587,9 +589,9 @@ function plotaccs(ctx, data) {
             .destroy();
     }
 
-    var showGraph = ($('#utr').val() === '1' && $('#host-select').val() === "Escherichia coli" && $('#custom-region').val().length === 0)
-        ? 1
-        : 0;
+    var showGraph = ($('#utr').val() === '1' && $('#host-select').val() === "Escherichia coli" && $('#custom-region').val().length === 0) ?
+        1 :
+        0;
     if (showGraph == 1) {
         window.chart = new Chart(ctx, {
             type: 'line',
@@ -628,14 +630,14 @@ function plotaccs(ctx, data) {
                     display: true,
                     position: 'bottom',
                     text: "Distributions for PSI:Biology targets (8,780 ‘success’ and 2,650 ‘failure’ exper" +
-                            "iments)."
+                        "iments)."
                 },
 
                 tooltips: {
                     enabled: true,
                     mode: 'index',
                     callbacks: {
-                        label: function (tooltipItems, data) {
+                        label: function(tooltipItems, data) {
                             return " Fraction of data with this opening energy: : " + tooltipItems.yLabel;
                         }
                     }
@@ -646,50 +648,45 @@ function plotaccs(ctx, data) {
                 },
 
                 scales: {
-                    yAxes: [
-                        {
-                            id: "probDensity",
-                            type: 'linear',
-                            ticks: {
-                                //beginAtZero: true,
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: ''
-                            }
-                        }
-                    ],
-
-                    xAxes: [
-                        {
-                            beginAtZero: true,
-                            type: 'category',
-                            position: 'bottom',
-                            display: false
-                        }, {
-                            id: 'x-axis-2',
-                            type: 'linear',
-                            position: 'bottom',
+                    yAxes: [{
+                        id: "probDensity",
+                        type: 'linear',
+                        ticks: {
+                            //beginAtZero: true,
+                        },
+                        scaleLabel: {
                             display: true,
-
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Opening Energy'
-                            },
-
-                            ticks: {
-                                min: 0,
-                                max: 33,
-                                stepSize: 0.25
-                            }
+                            labelString: ''
                         }
-                    ]
+                    }],
+
+                    xAxes: [{
+                        beginAtZero: true,
+                        type: 'category',
+                        position: 'bottom',
+                        display: false
+                    }, {
+                        id: 'x-axis-2',
+                        type: 'linear',
+                        position: 'bottom',
+                        display: true,
+
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Opening Energy'
+                        },
+
+                        ticks: {
+                            min: 0,
+                            max: 33,
+                            stepSize: 0.25
+                        }
+                    }]
 
                 },
 
                 annotation: {
-                    annotations: [
-                        {
+                    annotations: [{
                             type: 'line',
                             drawTime: 'afterDatasetsDraw',
                             mode: 'vertical',
@@ -726,6 +723,7 @@ function plotaccs(ctx, data) {
 
 
 function successfunc(response) {
+    console.log("SUCCESS");
     //show json in table
     maketable("#new-table0", response.Selected);
     maketable("#new-table1", response.Input);
@@ -738,8 +736,8 @@ function successfunc(response) {
     plotaccs(ctx, response);
     $("#infinite-prog-bar").collapse("hide");
     $("#snackbar-msg").collapse("hide");
-    $(frm).hide()
     $("#show-results").collapse("show");
+    $('#tisigner-form-div').collapse('hide');
     //store file in local storage to maybe retrieve it later
     localStorage.setItem('newresults', JSON.stringify(response));
 
@@ -753,10 +751,11 @@ function errorfunc(jqXHR, textStatus, errorThrown) {
     $("#snackbar-msg").collapse("hide");
     // $('#try-again').trigger("click");    setTimeout(function () {
     // location.reload(true);    }, 5000);
+    $('#snackbar-msg-error').empty();
     $('#snackbar-msg-error')
-        .text('Error ' + `${jqXHR.status}` + ': ' + `${jqXHR.responseText}`)
+        .append('Error ' + `${jqXHR.status}` + ': ' + `${jqXHR.responseText}`)
         .collapse("toggle");
-    setTimeout(function () {
+    setTimeout(function() {
         $('#snackbar-msg-error').collapse("toggle");
         $('#try-again').trigger("click");
     }, 5000);
@@ -770,7 +769,11 @@ function errorfunc(jqXHR, textStatus, errorThrown) {
 }
 
 
-function filesave(blob){
+function filesave(blob) {
     var f = JSON.parse(localStorage.getItem(blob));
     saveAs(f, "results.txt");
 }
+
+// $(document).ready(function(){
+//
+// })

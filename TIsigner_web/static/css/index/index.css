@@ -1,0 +1,163 @@
+/*from Hudson Allen at scotch.io*/
+/* General/reset styles */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+.info-section {
+    min-height: calc(100vh - 10px);
+}
+
+.services {
+     display: block;
+      margin: 20px auto;
+  padding-top: 30px;
+  text-align: center;
+  font-size: 3em;
+/*  font-weight: 100;*/
+    transition: 0.2s;
+}
+
+
+
+.uni-logo {
+ position:absolute;
+ top:5px;
+ left:5px;
+ z-index:99;
+}
+
+
+
+/* Header styles */
+
+header {
+  text-align: center;
+  height: 100vh;
+  background: #355664;
+  color: #fff;
+}
+
+header h1 {
+  padding-top: 100px;
+  padding-top: -webkit-calc(50vh - 113px);
+  padding-top: expression(50vh - 113px);
+  padding-top: -moz-calc(50vh - 113px);
+  padding-top: -o-calc(50vh - 113px);
+  padding-top: calc(50vh - 113px);
+
+}
+
+
+
+.arrow{
+    position: absolute;
+    top: 94%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+     cursor: pointer;
+}
+.arrow span{
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-bottom: 5px solid #fff;
+    border-right: 5px solid #fff;
+    transform: rotate(45deg);
+    margin: -10px;
+    animation: animate 4s infinite;
+
+}
+
+@keyframes animate {
+    0%{
+        opacity: 0;
+        transform: rotate(45deg) translate(-20px,-20px);
+    }
+    42.5%{
+        opacity: 1;
+    }
+    90%, 100%{
+        opacity: 0;
+        transform: rotate(45deg) translate(20px,20px);
+    }
+}
+
+
+
+
+
+/* Scroll animations styles */
+
+.scroll-animations {
+  display: flex;
+}
+
+.scroll-animations div {
+  flex-grow: 1;
+  padding: 50px;
+  text-align: center;
+  opacity: 0;
+  color: #333;
+}
+
+.scroll-animations div span {
+  font-size: 4em;
+  color: #5AA9E0;
+}
+
+.scroll-animations div h3 {
+  font-size: 1.9em;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.footer {
+background: #355664;
+font-size: 16px;
+line-height: 1.3;
+margin: auto 0 0 0;
+padding: 45px 0 10px 0;
+text-align: left;
+    height: 220px;
+}
+
+
+/* Media queries */
+
+@media (max-width: 759px) {
+  header h1 {
+    font-size: 5em;
+  }
+
+  .services {
+    font-size: 3em;
+  }
+
+  .scroll-animations {
+    display: block;
+  }
+
+  .scroll-animations div {
+    padding: 20px 80px;
+  }
+
+}
+
+@media (max-width: 475px) {
+  .services {
+    font-size: 2.5em;
+  }
+
+  header h1 {
+    font-size: 3.2em;
+  }
+
+
+}

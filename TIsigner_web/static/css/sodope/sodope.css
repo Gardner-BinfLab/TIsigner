@@ -1,0 +1,32 @@
+
+.custom-sol-inp {
+  /* make input field around 2 rows height */
+  height: 60px;
+}
+
+
+#dg canvas {
+  margin: 0px auto;
+}
+
+
+/* slider */
+/**** Custom styles for noUiSlider ****/
+.noUi-connect {
+	background: #ff4081;
+}
+.noUi-horizontal .noUi-handle, .noUi-vertical .noUi-handle {
+	background: #ff4081;
+}
+.noUi-target.noUi-horizontal .noUi-tooltip {
+	background-color: #ff4081;
+}
+
+
+
+#residue-line {
+/*    z-index: -5;*/
+    height: 25px;
+    background-color: #e0e0e0;
+    margin-bottom: -28px;
+}

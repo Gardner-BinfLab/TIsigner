@@ -66,6 +66,7 @@ class AnalyseTerminators:
                     self.cm, inp_f], stdout=PIPE, stderr=DEVNULL, \
                    encoding='utf-8')
         os.remove(inp_f)
+#        print(self.tblout_fname)
         self.cm_output = str(proc.stdout)
 
 

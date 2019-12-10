@@ -15,7 +15,6 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import make_response
-import flask_monitoringdashboard as dashboard
 import numpy as np
 import functions
 from functions import Optimiser
@@ -27,19 +26,31 @@ import data
 SECRET_KEY = os.urandom(32)
 csrf = CSRFProtect()
 app = Flask(__name__)
-dashboard.config.init_from(file=data.DASHBOARD)
 csrf.init_app(app)
-dashboard.bind(app)
-csrf.exempt(dashboard.blueprint)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['WTF_CSRF_TIME_LIMIT'] = None
+
 
 @app.route('/')
 def homepage():
     '''render homepage'''
-    return render_template("index.html", tips=functions.tips(), \
+    return render_template("index.html")
+
+
+@app.route('/tisigner')
+def tisigner():
+    return render_template("tisigner.html", tips=functions.tips(), \
                            mod_date=functions.last_modified(os.path.join(os.path.dirname(__file__), \
                                  'functions.py')))
+
+
+
+@app.route('/sodope')
+def sodope():
+    return render_template("sodope.html", \
+                           mod_date=functions.last_modified(os.path.join(os.path.dirname(__file__), \
+                                                                         'templates/sodope.html')))
+
 
 
 
@@ -66,6 +77,7 @@ def optimiser():
             direction = request.form['optimisation-direction']
         else:
             direction = 'decrease'
+
         seeds = list(range(seed, seed+num_seq))
         rand_states = [np.random.RandomState(i) for i in seeds]
         new_opt = Optimiser(seq=seq, host=host, ncodons=ncodons, utr=utr, \
@@ -87,13 +99,13 @@ def optimiser():
                                direction=direction, termcheck=termcheck)
 
         json_data = result_df.groupby(['Type', 'Sequenceh'], sort=False).apply(lambda x:\
-                                     functions.send_data(x, utr=utr, 
+                                     functions.send_data(x, utr=utr,
                                     host=host)).groupby(level=0).\
                                      apply(lambda x: x.tolist()).to_json(\
                                           orient='columns')
         return json_data
-    
-    
+
+
     except Exception as exp:
         if 'pools' in locals():
             pools.close()
@@ -102,4 +114,5 @@ def optimiser():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000', threaded=True, debug=True)
+    app.run(host='0.0.0.0', port='5000', threaded=True, debug=False)
+

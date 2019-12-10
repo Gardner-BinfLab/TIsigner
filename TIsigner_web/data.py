@@ -105,3 +105,4 @@ AUTHORS = 'Bikash<bikash.bhandari@postgrad.otago.ac.nz> '+\
 ' Lim<chunshen.lim@otago.ac.nz> '+\
 ' Gardner-Binflab (2019)'
 MANUAL = 'Translation Initiation coding region deSIGNER.'
+

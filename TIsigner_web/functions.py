@@ -287,7 +287,7 @@ def get_prob_pos(accs):
     Input is an accessibility/openen
     '''
     index = abs(REFDF["Thresholds"] - accs).idxmin()
-    plr = REFDF.iloc[index]['Plr'] 
+    plr = REFDF.iloc[index]['Plr']
     post_odds_pos = PRIOR_ODDS*plr
     post_prob_pos = float(post_odds_pos/(1+post_odds_pos))
     return post_prob_pos
@@ -299,12 +299,12 @@ def get_accs(prob):
     post_odds_pos = prob/(1-prob)
     plr = post_odds_pos/PRIOR_ODDS
     index = abs(REFDF["Plr"] - plr).idxmin()
-    accs = REFDF.iloc[index]['Thresholds'] 
+    accs = REFDF.iloc[index]['Thresholds']
     return accs
 
 
 def scaled_prob(post_prob):
-    '''Scales post probability from min value (prior) to 100 (equal to post 
+    '''Scales post probability from min value (prior) to 100 (equal to post
     prob of 0.70 (max in our case).
     '''
     scaled_p = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
@@ -639,7 +639,7 @@ def make_plfoldargs(request_form):
         end = int(end)
     except ValueError:
         raise CustomRangeException("Bad values for custom range.")
-    
+
     nt_pos = end if end > start else start
     subseg_len = abs(end - start)
     if subseg_len >= 151:
@@ -739,3 +739,4 @@ def last_modified(filepath):
     last_modif = os.path.getmtime(filepath)
     datim = str(datetime.datetime.fromtimestamp(last_modif))
     return datim.split(" ")[0]
+
