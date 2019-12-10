@@ -1,6 +1,9 @@
 # TIsigner (Translation Initiation coding region designer)
 This repository contains source for the following: 
 - TIsigner command line version (TIsigner_cmd)
+- TIsigner website (TIsigner_web)
+
+TIsigner_web contains the following:
 - TIsigner web version ([TIsigner](https://tisigner.otago.ac.nz/tisigner)).
 - SoDoPE ([SoDoPE](https://tisigner.otago.ac.nz/sodope)).
 
