@@ -25,6 +25,7 @@ REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__), \
                                  'lookup_table.csv')) #table for likelihood/thresh
 PRIOR_PROB = 0.49 #success/(success+failure)
 PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
+CM = os.path.join(os.path.dirname(__file__), 'term.cm')
 
 
 
@@ -360,7 +361,7 @@ def sa_results_parse(results, threshold=None, termcheck=False):
         df = pd.DataFrame(results, columns=['Sequence', 'Accessibility', 'org_sq', \
                                         'org_accs'])
     if termcheck is True:
-        tmp_df = AnalyseTerminators(cm='term.cm', seq_df=df)
+        tmp_df = AnalyseTerminators(cm=CM, seq_df=df)
         res_df = tmp_df.term_check()
         df = res_df.drop(columns=['Min_E_val', 'Accession'])
 
@@ -725,7 +726,7 @@ def parse_seed(request_form):
 
 def check_term_org(seq):
     df = pd.DataFrame({'Sequence':[seq]})
-    tmp_ = AnalyseTerminators(cm='term.cm', seq_df=df)
+    tmp_ = AnalyseTerminators(cm=CM, seq_df=df)
     res = tmp_.term_check()
     hits = res['Hits'].values
     e_val = res['E_val']
