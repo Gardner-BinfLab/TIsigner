@@ -15,4 +15,4 @@ Permission is granted for research, educational, and commercial use and modifica
 If you want to include this software in a commercial product, please contact the authors.
 ```
 
-© [Bikash Kumar Bhandari](https://bkb3.github.io), [Chun Shem Lim](https://github.com/lcscs12345), [Paul P Gardner](https://github.com/ppgardne) (2019)
+© [Bikash Kumar Bhandari](https://bkb3.github.io), [Chun Shen Lim](https://github.com/lcscs12345), [Paul P Gardner](https://github.com/ppgardne) (2019)
