@@ -1,6 +1,9 @@
 
 # TIsigner command line version
 
+![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)
+### The [web version](https://github.com/Gardner-BinfLab/TISIGNER-ReactJS) is currently maintained. 
+
 ##### Dependencies
 You need to have python 3.6+ installed. The required python dependencies can be installed by
 
