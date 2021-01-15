@@ -87,13 +87,13 @@ TIsigner is written using object oriented programming principles and allows easy
 
 You can now instantiate Optimiser class with appropriate parameters:
 
-```my_opt = Optimiser(seq, host='ecoli', ncodons=None, utr=None, niter=None, threshold=None, plfold_args=None, rms_sites=None)```
+```my_opt = Optimiser(seq, host='ecoli', ncodons=None, utr=None, niter=None, threshold=None, rms_sites=None)```
 
 Most arguments are optional and can be skipped. The skipped parameters will default to parameters for experiments with *E. coli* and T7lac promoter. The optimised sequence can be found by running simulated annealing:
 
 ```opt_seq = my_opt.simulated_anneal()```
 
-This will return a tuple of optimised sequence, its opening energy, posterior probability of being expressed and input sequence, its opening energy and posterior probability of being expressed. Posterior probability lies between 0.49 and 0.70. 
+This will return a tuple of optimised sequence, its opening energy, probability of being expressed (Expression score) and input sequence, its opening energy and probability of being expressed. Probability lies between 0 to 1. 
 ```
 ('ATGAAGAAAAGCTTATCCACCAGCGCTCGCCTCGAGGGAGGACTATCTATCTATCTATCTATCTTCGGCGGACGGACTACCATCGCATTACGGGGCTACGACGGACTCGATCTACTATCTATCTACTTCTAG',
  9.125085,
