@@ -20,7 +20,7 @@ Once you've installed the dependencies, you can enter the following command:
 This will print a help of all possible commands. 
 ```
 usage: TIsigner [-h] [-v] -s SEQUENCE [-o OUTPUT] [-c CODONS] [-u UTR]
-                [-t HOST] [-n NITER] [-r RESULT] [-e TARGETEXPRESSION]
+                [-t HOST] [-n NITER] [-r RESULT] [-e TARGETOPENINGENERGY]
                 [-f FILTER] [-m] [-d SEED]
 
 Translation Initiation coding region deSIGNER.
@@ -45,11 +45,11 @@ optional arguments:
   -r RESULT, --result RESULT
                         Number of result sequence to generate before selecting
                         the top result. Default 10. Max 50.
-  -e TARGETEXPRESSION, --targetexpression TARGETEXPRESSION
-                        Target expression score to acheive in range 5(low) to
-                        100(high). The target may or maynot be exactly reached
-                        due to other parameters. This feature applies to host
-                        Ecoli with pET21 promoter only.
+  -e TARGETOPENINGENERGY, --targetopeningenergy TARGETOPENINGENERGY
+                        Target opening energy to acheive in range 5 to 30. The
+                        target may or maynot be exactly reached due to other
+                        parameters. This feature applies to host E.coli with
+                        pET21 promoter only.
   -f FILTER, --filter FILTER
                         Sites to filter. Filters forward and reverse
                         complements of AarI, BsaI, BsmBI by default.

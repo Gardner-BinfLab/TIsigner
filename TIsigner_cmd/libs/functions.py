@@ -4,10 +4,14 @@
 Created on Tue May  7 20:56:34 2019
 
 @author: bikash
+
+Part of TIsigner
+
 """
 
 import os
 #import sys
+import datetime
 import secrets
 import string
 import tempfile
@@ -18,15 +22,32 @@ import numpy as np
 import pandas as pd
 from libs import data
 from libs.terminators import AnalyseTerminators
+# from lmfit.model import load_modelresult
+# model = load_modelresult(os.path.join(os.path.dirname(__file__), \
+#     'tisigner.model'))
 
 
-REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__), \
-                                 'lookup_table.csv')) #table for likelihood/thresh
-PRIOR_PROB = 0.49 #success/(success+failure) 
-PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
+# REFDF = pd.read_csv(os.path.join(os.path.dirname(__file__), \
+#                                  'lookup_table.csv')) #table for likelihood/thresh
+# PRIOR_PROB = 0.49 #success/(success+failure)
+# PRIOR_ODDS = PRIOR_PROB/(1-PRIOR_PROB)
+CM = os.path.join(os.path.dirname(__file__), 'term.cm')
 
 
-
+def response(x, inflection1=17.9896340, inflection2=17., slope1=-0.8, slope2=-0.5, max_sel=1.61155914, minsel_upper=0.5,):
+    '''
+    https://github.com/duplisea/dublogistic
+    x = x
+    omega = maximum/minimum selectivity
+    alpha = slope
+    beta = point of inflection
+    Default params are based on logistic fitting of PSI:Biology data https://doi.org/10.1101/726752
+    '''
+    minsel_upper= 1-minsel_upper
+    logistic1= max_sel/(1+np.exp(-slope1*(x-inflection1)))
+    logistic2= 1-minsel_upper/(1+np.exp(-slope2*(x-inflection2)))
+    sel= logistic1*logistic2
+    return sel
 
 
 
@@ -49,30 +70,27 @@ class Optimiser:
 
 
     def __init__(self, seq, host='ecoli', ncodons=None, utr=None, niter=None,\
-                 threshold=None, plfold_args=None, rms_sites=None):
+                 threshold=None,rms_sites=None,\
+                 direction='increase-accessibility'):
         self.seq = seq
         self.host = host
         self.ncodons = ncodons
         self.utr = utr
-        if self.utr is None:
-            self.utr = data.pET21_UTR
         self.niter = niter
         self.threshold = threshold
         self.annealed_seq = None #result of simulated annealing
-        self.plfold_args = plfold_args
-        if self.plfold_args is None:
-            self.plfold_args = data.RNAPLFOLD_ECOLI
         self.rms_sites = rms_sites
         self.cnst = data.CNST #to prevent overflows
-        self.direction = 'decrease'
-        if self.threshold is not None and \
+        self.direction = direction
+        if self.threshold != None and \
         Optimiser.accessibility(self) <= self.threshold:
-            self.direction = 'increase'
+            self.direction = 'decrease-accessibility'
+        if self.direction == 'decrease-accessibility':
             self.cnst = -1
 
 
 
-            
+
 
 
     @staticmethod
@@ -130,23 +148,21 @@ class Optimiser:
 
 
 
-
     @lru_cache(maxsize=128, typed=True)
-    def accessibility(self, new_seq=None, inuse=False):
+    def accessibility(self, new_seq=None):
         '''Sequence accessibility
-        inuse = use in internal function. Set false otherwise.
         '''
         tmp = os.path.join(tempfile.gettempdir(), 'plfold')
         try:
             os.makedirs(tmp)
         except FileExistsError:
             pass
-        
+
         try:
             nt_pos, subseg_length = data.ACCS_POS[self.host]
         except KeyError:
-            nt_pos, subseg_length = data.ACCS_POS['ecoli']
-
+            if 'custom' in self.host:
+                nt_pos, subseg_length = get_plfold_args(self.host)
         utr = self.utr.upper()
 
         if new_seq is None:
@@ -155,25 +171,38 @@ class Optimiser:
             seq = new_seq
 
 
-        all_args = ['RNAplfold'] + self.plfold_args.split(' ')
+#        all_args = ['RNAplfold'] + self.plfold_args.split(' ')
+        winsize = 210
+        all_args = ['RNAplfold', '-W', str(winsize), '-u', str(subseg_length), '-O']
 
-#        sequence = utr + seq
-        sequence = utr[-210:] + seq[:210] #total len = 281 which sufficient to
-        #accomodate all window sizes of 210 for our region of interest
+        ## Part of UTR and sequence we need for computation
+        utr = utr[-(winsize - nt_pos + 1):]
+        seq = seq[:(winsize - (subseg_length - nt_pos) + 1)]
+        sequence = utr + seq
         seq_accession, rand_string = Optimiser.accession_gen()
         input_seq = seq_accession + sequence
         run(all_args, stdout=PIPE, stderr=DEVNULL, input=input_seq, cwd=tmp, \
                     encoding='utf-8')
         out1 = '/' + rand_string + '_openen'
         out2 = '/' + rand_string + '_dp.ps'
-        open_en = pd.read_csv(tmp+out1, sep='\t', skiprows=2, header=None)\
+        try:
+            open_en = pd.read_csv(tmp+out1, sep='\t', skiprows=2, header=None)\
                     [subseg_length][len(utr) + nt_pos - 1]
+        except Exception:
+            raise CustomRangeException("The given custom range was out of"+\
+                                " the length of sequence and 5′ UTR.")
+        if np.isnan(open_en):
+            raise AccessibilityCalculationException("Could not calculate the"+\
+                    " opening energy for given custom positions because the"+\
+                    " position lies outside of the given sequence and"+\
+                    " 5′ UTR.")
 
 
         os.remove(tmp+out1)
         os.remove(tmp+out2)
 
         return open_en
+
 
 
     def simulated_anneal(self, rand_state=None):
@@ -229,10 +258,10 @@ class Optimiser:
 
             #early stopping if we pass the threshold
             if self.threshold != None:
-                if self.direction == 'increase' and \
+                if self.direction == 'decrease-accessibility' and \
                 curr_best_cost >= self.threshold:
                     break
-                elif self.direction == 'decrease' and \
+                elif self.direction == 'increase-accessibility' and \
                 curr_best_cost <= self.threshold:
                     break
 
@@ -244,8 +273,8 @@ class Optimiser:
 
         if self.utr == data.pET21_UTR and self.host=='ecoli':
             #also return posterior probs for ecoli and pET_21_UTR
-            results.insert(2, get_prob_pos(final_cost))
-            results.append(get_prob_pos(initial_cost))
+            results.insert(2, response(x=final_cost))
+            results.append(response(x=initial_cost))
         return results
 
 
@@ -260,10 +289,6 @@ def progress(iteration, total, message=None):
 
     if iteration == total:
         print('\nCompleted!') 
-
-
-
-
 
 
 def mismatches(seq1, seq2):
@@ -284,7 +309,7 @@ def get_prob_pos(accs):
     Input is an accessibility/openen
     '''
     index = abs(REFDF["Thresholds"] - accs).idxmin()
-    plr = REFDF.iloc[index]['Plr'] 
+    plr = REFDF.iloc[index]['Plr']
     post_odds_pos = PRIOR_ODDS*plr
     post_prob_pos = float(post_odds_pos/(1+post_odds_pos))
     return post_prob_pos
@@ -296,36 +321,38 @@ def get_accs(prob):
     post_odds_pos = prob/(1-prob)
     plr = post_odds_pos/PRIOR_ODDS
     index = abs(REFDF["Plr"] - plr).idxmin()
-    accs = REFDF.iloc[index]['Thresholds'] 
+    accs = REFDF.iloc[index]['Thresholds']
     return accs
-    
-
-def scaled_prob(post_prob):
-    '''Scales post probability from min value (prior) to 100 (equal to post 
-    prob of 0.70 (max in our case).
-    '''
-    scaled_p = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
-    return scaled_p
 
 
+# def scaled_prob(post_prob):
+#     '''Scales post probability from min value (prior) to 100 (equal to post
+#     prob of 0.70 (max in our case).
+#     '''
+#     scaled_p = 100*(post_prob - PRIOR_PROB )/(0.70 - PRIOR_PROB)
+#     return scaled_p
 
-def min_dist_from_start(refseq, tstseq):
+
+
+def min_dist_from_start(refseq, tstseq, max_len=50):
     '''max_len in codons (useful for primer selection only)
     max_len is used to generate scores which again are useful for primer only.
     returns hamming distance and distance from start nt
     '''
-    assert len(refseq) == len(tstseq)
+    if len(refseq) != len(tstseq):
+        raise ValueError('Sequence length mismatch for Hamming '
+                         'distance computation.')
     hamming_dist = sum(nt1 != nt2 for nt1, nt2 in zip(refseq, tstseq))
     elem1 = [refseq[i:i+1] for i in range(0, len(refseq))]
     elem2 = [tstseq[i:i+1] for i in range(0, len(tstseq))]
+
     high_seq = '' #sequence with highlighted difference
     for i, v in enumerate(elem1):
         if elem2[i] == v:
             high_seq+=elem2[i]
         else:
-            high_seq+=elem2[i].lower()
+            high_seq+="<mark>"+elem2[i]+"</mark>"
     return hamming_dist, high_seq
-
 
 def reverse_complement(seq):
     seq = seq.upper().replace("U", "T")
@@ -345,7 +372,6 @@ def parse_rms(rms_in=None):
 
 
 
-
 def sa_results_parse(results, threshold=None, termcheck=False):
     '''returns dataframe for results from simulated annealing
     '''
@@ -357,28 +383,34 @@ def sa_results_parse(results, threshold=None, termcheck=False):
         df = pd.DataFrame(results, columns=['Sequence', 'Accessibility', 'org_sq', \
                                         'org_accs'])
     if termcheck is True:
-        tmp_df = AnalyseTerminators(cm='libs/term.cm', seq_df=df)
+        tmp_df = AnalyseTerminators(cm=CM, seq_df=df)
         res_df = tmp_df.term_check()
         df = res_df.drop(columns=['Min_E_val', 'Accession'])
-             
 
-    
+
+
     if threshold is not None:
         df['closetothreshold'] = df['Accessibility'].apply(lambda x:abs(x\
            - threshold))
 
-    
+
     return df
 
 
 def sort_results(df, direction='decrease', termcheck=False):
     '''sorting results
+    Sequence has sequences with difference highlighted by using
+    <mark></mark tag.
     '''
     org_seq = df['org_sq'][0]
     cols = ['Sequence', 'Accessibility']
-    cols_for_mismatches = ['Mismatches', 'Sequenceh']
-    cols_for_sort = ['Mismatches']
+    cols_for_mismatches = ['Mismatches', 'Sequence']
+    cols_for_sort = ['Mismatches', 'Accessibility']
     bool_for_sort = [True]
+    if direction == 'decrease':
+        bool_for_sort.append('True')
+    else:
+        bool_for_sort.append('False')
     ecoli = False
 
     if 'pExpressed' in df.columns: #for pET21 and ecoli
@@ -393,16 +425,15 @@ def sort_results(df, direction='decrease', termcheck=False):
          else:
             bool_for_sort.insert(cols_for_sort.index('pExpressed'), True)
          ecoli = True
-            
-            
+
+
     if 'Hits' in df.columns:
          cols.append('Hits')
          cols_for_sort.insert(0, 'Hits')
          bool_for_sort.insert(cols_for_sort.index('Hits'), True)
     if 'E_val' in df.columns:
          cols.append('E_val')
-            
-        
+
 
 
     sequences_df = df[cols].copy()
@@ -416,53 +447,50 @@ def sort_results(df, direction='decrease', termcheck=False):
                              inplace=True)
     if 'closetothreshold' in sequences_df.columns:
         sequences_df.drop(['closetothreshold'], inplace=True, axis=1)
-    
+
     if ecoli is True:
-        res_df = sequences_df.append({"Sequenceh":org_seq, \
+        res_df = sequences_df.append({"Sequence":org_seq, \
                               "Accessibility":df['org_accs'][0], \
                               "pExpressed":df['org_pexpr'][0], \
                               "Type":"Input"}, ignore_index=True)
-        res_df['pExpressed'] = res_df['pExpressed'].apply(scaled_prob).round(2)
+        res_df['pExpressed'] = res_df['pExpressed'].round(2)
     else:
-        res_df = sequences_df.append({"Sequenceh":org_seq, \
+        res_df = sequences_df.append({"Sequence":org_seq, \
                               "Accessibility":df['org_accs'][0], \
                               "Type":"Input"}, ignore_index=True)
-    
+
     res_df.loc[0,"Type"]="Selected"
     res_df["Accessibility"] = res_df["Accessibility"].round(2)
 
-
-    
     if termcheck is True:
-        #termcheck for org seq
         o_hit, o_eval = check_term_org(org_seq)
-        res_df['Hits'][res_df.index[res_df['Type'] == 'Input']] = o_hit
-        res_df['E_val'][res_df.index[res_df['Type'] == 'Input']] = o_eval
+        res_df.loc[res_df.index[res_df['Type'] == 'Input']]['Hits'] = o_hit
+        res_df.loc[res_df.index[res_df['Type'] == 'Input']]['E_val'] = o_eval
     return res_df
-    
+
 
 def send_data(x, utr=data.pET21_UTR, host='ecoli'):
     '''send json data back
     '''
     if utr == data.pET21_UTR and host=='ecoli':
         if 'Hits' in x.columns and 'E_val' in x.columns:
-            return (dict({'Sequenceh':x.Sequenceh.iloc[0]},\
+            return (dict({'Sequence':x.Sequence.iloc[0]},\
               **{'Accessibility':x.Accessibility.iloc[0]},\
               **{'pExpressed':x.pExpressed.iloc[0]},\
               **{'Hits':x.Hits.iloc[0]},\
               **{'E_val':x['E_val'].iloc[0]}))
         else:
-            
-            return (dict({'Sequenceh':x.Sequenceh.iloc[0]},\
+
+            return (dict({'Sequence':x.Sequence.iloc[0]},\
                           **{'Accessibility':x.Accessibility.iloc[0]},\
                           **{'pExpressed':x.pExpressed.iloc[0]}))
     else:
         if 'Hits' in x.columns and 'E_val' in x.columns:
-                return (dict({'Sequenceh':x.Sequenceh.iloc[0]},\
+                return (dict({'Sequence':x.Sequence.iloc[0]},\
                   **{'Accessibility':x.Accessibility.iloc[0]},\
                   **{'Hits':x.Hits.iloc[0]},\
                   **{'E_val':x['E_val'].iloc[0]}))
-        return (dict({'Sequenceh':x.Sequenceh.iloc[0]},\
+        return (dict({'Sequence':x.Sequence.iloc[0]},\
                       **{'Accessibility':x.Accessibility.iloc[0]}))
 
 
@@ -516,6 +544,16 @@ class TerminatorCheckFailException(Exception):
     '''
     pass
 
+class CustomRangeException(Exception):
+    '''Exception for custom range
+    '''
+    pass
+
+class AccessibilityCalculationException(Exception):
+    '''Exception when calculating accessibility
+    '''
+    pass
+
 
 
 def valid_input_seq(seq):
@@ -535,7 +573,7 @@ def valid_input_seq(seq):
         raise UnknownNucleotidesException('Unknown nucleotides.')
     elif len(seq)%3 != 0:
         raise InvalidSequenceException('Sequence is not divisible by 3.')
-    elif len(seq) >= 3000:
+    elif len(seq) >= 300000:
         raise InvalidSequenceException('Sequence too long for web version.'+
                                        'Try command line version.')
 
@@ -563,102 +601,149 @@ def valid_utr(seq):
     '''
     seq = seq.upper()
     pattern = re.compile('^[ATGCU]*$')
-    if len(seq) < 71:
+    if len(seq) < 70:
         raise ShortSequenceException('UTR is too short.')
     elif not pattern.match(seq):
         raise UnknownNucleotidesException('Unknown nucleotides.')
-    elif len(seq) >= 300:
+    elif len(seq) >= 3000:
         raise InvalidSequenceException('UTR too long for web version.'+
                                        'Try command line version.')
     return seq
 
 
-def parse_input_sequence(request_form):
+def parse_input_sequence(request_json):
     '''parse sequence and number of codons to substitute
     '''
-    seq = valid_input_seq(request_form['input-sequence'].\
+    seq = valid_input_seq(request_json.get('inputSequence').\
                                    upper().replace("U", "T"))
-    if request_form['designMode'] != 'fullGene':
-        ncodons = int(request_form['designMode']) 
+    if request_json.get('substitutionMode') != 'fullGene':
+        #count including start codon so + 1
+        ncodons = int(request_json.get('numberOfCodons')) + 1
         if ncodons*3 >= len(seq):
             ncodons = int((len(seq) - len(seq)%3)/3) - 1
     else:
         ncodons = int((len(seq) - len(seq)%3)/3) - 1
-        
+
     return seq, ncodons
 
-    
-def parse_input_utr(request_form):
+
+def parse_input_utr(request_json):
     '''parse utr
     '''
     try:
-        utr = data.UTR_INPUT[request_form['utr']]
+        utr = data.UTR_INPUT[request_json.get('promoter')]
     except KeyError:
-        if request_form['custom-utr']:
-            utr = valid_utr(request_form['custom-utr'].\
+        if request_json['customPromoter']:
+            utr = valid_utr(request_json.get('customPromoter').\
                                   upper().replace("U", "T"))
         else:
             utr = data.pET21_UTR
-        
+
     return utr
 
-def parse_hosts(request_form):
+def parse_hosts(request_json):
     '''parse hosts
     '''
-    
-    try:
-        host, plfold_args = data.HOST_INPUT[request_form['host-select']]
-    except KeyError:
-        host, plfold_args = data.HOST_INPUT['Escherichia coli']
-    return host, plfold_args
+    if not request_json.get('customRegion'):
+        try:
+            host = data.HOST_INPUT[request_json.get('host')]
+        except KeyError:
+            host = data.HOST_INPUT['Escherichia coli']
+    else:
+        host = make_plfoldargs(request_json)
+    return host
 
-def parse_algorithm_settings(request_form):
+
+def make_plfoldargs(request_json):
+    '''determine plfold args from custom range
+    '''
+    try:
+        start, end = request_json.get('customRegion').split(':')
+        start = int(start)
+        end = int(end)
+    except ValueError:
+        raise CustomRangeException("Bad values for custom range.")
+
+    nt_pos = end if end > start else start
+    subseg_len = abs(end - start)
+    if subseg_len >= 151:
+        raise CustomRangeException("Custom region is greater then 150 " + \
+                                   "nucleotides.")
+    host = 'custom' + ':' + str(nt_pos) + ':' + str(subseg_len)
+    return host
+
+
+def get_plfold_args(host):
+    '''make plfold args for custom host
+    '''
+    if 'custom' in host:
+        try:
+            a, b, c = host.split(':')
+            nt_pos = int(b)
+            subseg_len = int(c)
+        except ValueError:
+            nt_pos = data.ACCS_POS['ecoli'][0]
+            subseg_len = data.ACCS_POS['ecoli'][1]
+    else:
+        nt_pos = data.ACCS_POS['ecoli'][0]
+        subseg_len = data.ACCS_POS['ecoli'][1]
+    return nt_pos, subseg_len
+
+
+
+def parse_algorithm_settings(request_json):
     '''algorithm settings
     '''
-    
+
     try:
-        niter, num_seq = data.ALGORITHM_SETTINGS[request_form['algochoose']]
+        niter, num_seq = data.ALGORITHM_SETTINGS[request_json.get('samplingMethod')]
     except KeyError:
         niter, num_seq = data.ALGORITHM_SETTINGS['quick']
     return niter, num_seq
-    
-def parse_input_rms(request_form):
+
+def parse_input_rms(request_json):
     '''parse rms
     '''
-    if not request_form['rms-sites']:
+    if not request_json['customRestriction']:
         rms = parse_rms()
     else:
-        rms = parse_rms(valid_rms(request_form['rms-sites']))
+        rms = parse_rms(valid_rms(request_json.get('customRestriction')))
     return rms
 
-    
-def parse_fine_tune(request_form):
+
+def parse_fine_tune(request_json):
     '''parse fine tune level to accs
     '''
-    if request_form['lvl-tune-val-txt']:
-        post_prob = (int(request_form['lvl-tune-val-txt']) * \
-                               (0.70 - PRIOR_PROB)/100) + PRIOR_PROB
-        threshold = get_accs(post_prob) #accs threshold
+    if request_json['targetExpression']:
+#        print(int(request_json['targetExpression']))
+        # post_prob = (int(request_json['targetExpression']) * \
+        #                        (0.70 - PRIOR_PROB)/100) + PRIOR_PROB
+        # threshold = get_accs(post_prob) #accs threshold
+        threshold = float(request_json['targetExpression'])
+        if threshold < 1:
+            threshold = 1
+        if threshold > 30:
+            threshold = 30
     else:
         threshold = None
     return threshold
 
 
-def parse_term_check(request_form):
+def parse_term_check(request_json):
     '''parse term check bool
     '''
-    if request_form['termcheck-bool']:
-        if request_form['termcheck-bool'] == "True":
-            return True
-    return False
+    if request_json.get('terminatorCheck'):
+        return request_json.get('terminatorCheck')
+    else:
+        return False
 
-def parse_seed(request_form):
+def parse_seed(request_json):
     '''
     parse seed
     '''
-    if request_form['seed']:
+    if request_json.get('randomSeed'):
         try:
-            seed = int(request_form['seed'])
+            seed = int(request_json.get('randomSeed'))
             if seed >=999999999:
                 seed = 0
         except ValueError:
@@ -667,16 +752,23 @@ def parse_seed(request_form):
         seed = 0
 
     return seed
-    
+
 def check_term_org(seq):
     df = pd.DataFrame({'Sequence':[seq]})
-    tmp_ = AnalyseTerminators(cm='libs/term.cm', seq_df=df)
+    tmp_ = AnalyseTerminators(cm=CM, seq_df=df)
     res = tmp_.term_check()
     hits = res['Hits'].values
     e_val = res['E_val']
     return hits, e_val
 
-    
-    
-    
-    
+
+def tips():
+    return np.random.choice(data.tips_list)
+
+def last_modified(filepath):
+    last_modif = os.path.getmtime(filepath)
+    datim = str(datetime.datetime.fromtimestamp(last_modif))
+    return datim.split(" ")[0]
+
+
+

@@ -66,16 +66,17 @@ def get_threshold(n):
     '''
     
     try:
-        if int(n) < 5 or int(n) >100:
-            raise argparse.ArgumentTypeError('Please input numbers in range '+
-                                             '5 to 100 only. ')
-        post_prob = (int(n) * \
-                               (0.70 - functions.PRIOR_PROB)/100) + \
-                     functions.PRIOR_PROB
-        threshold = functions.get_accs(post_prob) #accs threshold
+        if float(n) < 5 or float(n) >30:
+            raise argparse.ArgumentTypeError('Please input opening energy in range '+
+                                             '5 to 30 only. ')
+        threshold = float(n)
+        if threshold < 1:
+            threshold = 1
+        if threshold > 30:
+            threshold = 30
     except ValueError:
-        raise argparse.ArgumentTypeError('Please input numbers in range '+
-                                             '5 to 100 only. ')
+        raise argparse.ArgumentTypeError('Please input opening energy in range '+
+                                             '5 to 30 only. ')
     return threshold
 
 
@@ -135,12 +136,12 @@ def check_arg(args=None):
                         'selecting the top result.'+
                         ' Default 10. Max 50.',
                         default=20)
-    parser.add_argument('-e', '--targetexpression',
+    parser.add_argument('-e', '--targetopeningenergy',
                         type=get_threshold,
-                        help='Target expression score to acheive in range 5'+
-                        '(low) to 100(high). The target may or maynot be '+
+                        help='Target opening energy to acheive in range 5'+
+                        ' to 30. The target may or maynot be '+
                         'exactly reached due to other parameters. This '+
-                        'feature applies to host Ecoli with pET21 promoter' +
+                        'feature applies to host E.coli with pET21 promoter' +
                         ' only.')
     parser.add_argument('-f', '--filter',
                         type=valid_rms,
@@ -162,7 +163,7 @@ def check_arg(args=None):
             results.host,
             results.niter,
             results.result,
-            results.targetexpression,
+            results.targetopeningenergy,
             results.filter,
             results.termcheck,
             results.seed)
@@ -193,7 +194,7 @@ def main():
     rand_states = [np.random.RandomState(i) for i in seeds]
     new_opt = functions.Optimiser(seq=str(s), host=t, ncodons=c, utr=u, \
                                    niter=n, threshold=threshold, \
-                                   plfold_args=plfold_args, rms_sites=f)
+                                   rms_sites=f)
 
 
     #run optimiser (multiprocess)
@@ -216,7 +217,7 @@ def main():
 
     
     #fancy csv file for results
-    cols = ['Type', 'Sequenceh', 'Accessibility', 'pExpressed', \
+    cols = ['Type', 'Sequence', 'Accessibility', 'pExpressed', \
             'Hits', 'E_val', 'Mismatches']
     
     if 'Hits' not in result_df.columns:
@@ -228,7 +229,7 @@ def main():
     
     columns_rename = {'pExpressed':'Score',\
                    'Accessibility':'Opening Energy', \
-                   'Sequenceh':'Sequence', 'Hits':'Term. Hits'}
+                   'Sequence':'Sequence', 'Hits':'Term. Hits'}
     tmp_df.rename(columns=columns_rename, inplace='True')
     export_df = tmp_df.reindex(np.roll(tmp_df.index,\
                                        shift=1)).reset_index(drop=True)
